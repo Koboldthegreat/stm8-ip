@@ -13,9 +13,9 @@ OBJS     = $(SRCS:.c=.rel)
 
 CC       = sdcc
 LD       = sdld
-CFLAGS   = -m$(ARCH) -p$(MCU) --std-sdcc11
+CFLAGS   = -m$(ARCH) -p$(MCU) --std-c11
 CFLAGS  += -DF_CPU=$(F_CPU)UL -I. -I$(LIBDIR)
-CFLAGS  += --stack-auto --noinduction --use-non-free
+CFLAGS  += --stack-auto --noinduction 
 LDFLAGS  = -m$(ARCH) -l$(ARCH) --out-fmt-ihx
 
 all: $(TARGET)

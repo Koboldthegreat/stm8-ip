@@ -1,0 +1,372 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 3.6.8 #9946 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module main
+                                      6 	.optsdcc -mstm8
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _main
+                                     12 	.globl _se8r01_wait_rx
+                                     13 	.globl _se8r01_init
+                                     14 	.globl _uart_init
+                                     15 	.globl _printf
+                                     16 ;--------------------------------------------------------
+                                     17 ; ram data
+                                     18 ;--------------------------------------------------------
+                                     19 	.area DATA
+                                     20 ;--------------------------------------------------------
+                                     21 ; ram data
+                                     22 ;--------------------------------------------------------
+                                     23 	.area INITIALIZED
+                                     24 ;--------------------------------------------------------
+                                     25 ; Stack segment in internal ram 
+                                     26 ;--------------------------------------------------------
+                                     27 	.area	SSEG
+      000000                         28 __start__stack:
+      000000                         29 	.ds	1
+                                     30 
+                                     31 ;--------------------------------------------------------
+                                     32 ; absolute external ram data
+                                     33 ;--------------------------------------------------------
+                                     34 	.area DABS (ABS)
+                                     35 ;--------------------------------------------------------
+                                     36 ; interrupt vector 
+                                     37 ;--------------------------------------------------------
+                                     38 	.area HOME
+      000000                         39 __interrupt_vect:
+      000000 82v00u00u00             40 	int s_GSINIT ; reset
+                                     41 ;--------------------------------------------------------
+                                     42 ; global & static initialisations
+                                     43 ;--------------------------------------------------------
+                                     44 	.area HOME
+                                     45 	.area GSINIT
+                                     46 	.area GSFINAL
+                                     47 	.area GSINIT
+      000000                         48 __sdcc_gs_init_startup:
+      000000                         49 __sdcc_init_data:
+                                     50 ; stm8_genXINIT() start
+      000000 AEr00r00         [ 2]   51 	ldw x, #l_DATA
+      000003 27 07            [ 1]   52 	jreq	00002$
+      000005                         53 00001$:
+      000005 72 4FuFFuFF      [ 1]   54 	clr (s_DATA - 1, x)
+      000009 5A               [ 2]   55 	decw x
+      00000A 26 F9            [ 1]   56 	jrne	00001$
+      00000C                         57 00002$:
+      00000C AEr00r00         [ 2]   58 	ldw	x, #l_INITIALIZER
+      00000F 27 09            [ 1]   59 	jreq	00004$
+      000011                         60 00003$:
+      000011 D6uFFuFF         [ 1]   61 	ld	a, (s_INITIALIZER - 1, x)
+      000014 D7uFFuFF         [ 1]   62 	ld	(s_INITIALIZED - 1, x), a
+      000017 5A               [ 2]   63 	decw	x
+      000018 26 F7            [ 1]   64 	jrne	00003$
+      00001A                         65 00004$:
+                                     66 ; stm8_genXINIT() end
+                                     67 	.area GSFINAL
+      000000 CCr00r04         [ 2]   68 	jp	__sdcc_program_startup
+                                     69 ;--------------------------------------------------------
+                                     70 ; Home
+                                     71 ;--------------------------------------------------------
+                                     72 	.area HOME
+                                     73 	.area HOME
+      000004                         74 __sdcc_program_startup:
+      000004 CCr00r5D         [ 2]   75 	jp	_main
+                                     76 ;	return from main will return to caller
+                                     77 ;--------------------------------------------------------
+                                     78 ; code
+                                     79 ;--------------------------------------------------------
+                                     80 	.area CODE
+                                     81 ;	../../stm8/delay.h: 11: static inline void delay_ms(uint32_t ms) {
+                                     82 ;	-----------------------------------------
+                                     83 ;	 function delay_ms
+                                     84 ;	-----------------------------------------
+      000000                         85 _delay_ms:
+      000000 52 08            [ 2]   86 	sub	sp, #8
+                                     87 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      000002 5F               [ 1]   88 	clrw	x
+      000003 1F 03            [ 2]   89 	ldw	(0x03, sp), x
+      000005 1F 01            [ 2]   90 	ldw	(0x01, sp), x
+      000007 1E 0D            [ 2]   91 	ldw	x, (0x0d, sp)
+      000009 89               [ 2]   92 	pushw	x
+      00000A 1E 0D            [ 2]   93 	ldw	x, (0x0d, sp)
+      00000C 89               [ 2]   94 	pushw	x
+      00000D 4B 6F            [ 1]   95 	push	#0x6f
+      00000F 5F               [ 1]   96 	clrw	x
+      000010 89               [ 2]   97 	pushw	x
+      000011 4B 00            [ 1]   98 	push	#0x00
+      000013 CDr00r00         [ 4]   99 	call	__mullong
+      000016 5B 08            [ 2]  100 	addw	sp, #8
+      000018 1F 07            [ 2]  101 	ldw	(0x07, sp), x
+      00001A 17 05            [ 2]  102 	ldw	(0x05, sp), y
+      00001C                        103 00103$:
+      00001C 1E 03            [ 2]  104 	ldw	x, (0x03, sp)
+      00001E 13 07            [ 2]  105 	cpw	x, (0x07, sp)
+      000020 7B 02            [ 1]  106 	ld	a, (0x02, sp)
+      000022 12 06            [ 1]  107 	sbc	a, (0x06, sp)
+      000024 7B 01            [ 1]  108 	ld	a, (0x01, sp)
+      000026 12 05            [ 1]  109 	sbc	a, (0x05, sp)
+      000028 24 17            [ 1]  110 	jrnc	00105$
+                                    111 ;	../../stm8/delay.h: 13: __asm__("nop");
+      00002A 9D               [ 1]  112 	nop
+                                    113 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      00002B 16 03            [ 2]  114 	ldw	y, (0x03, sp)
+      00002D 72 A9 00 01      [ 2]  115 	addw	y, #0x0001
+      000031 7B 02            [ 1]  116 	ld	a, (0x02, sp)
+      000033 A9 00            [ 1]  117 	adc	a, #0x00
+      000035 97               [ 1]  118 	ld	xl, a
+      000036 7B 01            [ 1]  119 	ld	a, (0x01, sp)
+      000038 A9 00            [ 1]  120 	adc	a, #0x00
+      00003A 95               [ 1]  121 	ld	xh, a
+      00003B 17 03            [ 2]  122 	ldw	(0x03, sp), y
+      00003D 1F 01            [ 2]  123 	ldw	(0x01, sp), x
+      00003F 20 DB            [ 2]  124 	jra	00103$
+      000041                        125 00105$:
+      000041 5B 08            [ 2]  126 	addw	sp, #8
+      000043 81               [ 4]  127 	ret
+                                    128 ;	../../stm8/delay.h: 17: static inline void delay_us(uint32_t us) {
+                                    129 ;	-----------------------------------------
+                                    130 ;	 function delay_us
+                                    131 ;	-----------------------------------------
+      000044                        132 _delay_us:
+                                    133 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000044 90 5F            [ 1]  134 	clrw	y
+      000046 5F               [ 1]  135 	clrw	x
+      000047                        136 00103$:
+      000047 90 A3 00 00      [ 2]  137 	cpw	y, #0x0000
+      00004B 9F               [ 1]  138 	ld	a, xl
+      00004C A2 00            [ 1]  139 	sbc	a, #0x00
+      00004E 9E               [ 1]  140 	ld	a, xh
+      00004F A2 00            [ 1]  141 	sbc	a, #0x00
+      000051 25 01            [ 1]  142 	jrc	00115$
+      000053 81               [ 4]  143 	ret
+      000054                        144 00115$:
+                                    145 ;	../../stm8/delay.h: 19: __asm__("nop");
+      000054 9D               [ 1]  146 	nop
+                                    147 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000055 90 5C            [ 1]  148 	incw	y
+      000057 26 EE            [ 1]  149 	jrne	00103$
+      000059 5C               [ 1]  150 	incw	x
+      00005A 20 EB            [ 2]  151 	jra	00103$
+      00005C 81               [ 4]  152 	ret
+                                    153 ;	main.c: 10: void main() {
+                                    154 ;	-----------------------------------------
+                                    155 ;	 function main
+                                    156 ;	-----------------------------------------
+      00005D                        157 _main:
+      00005D 52 1E            [ 2]  158 	sub	sp, #30
+                                    159 ;	main.c: 11: uint8_t rx_buf[TX_PLOAD_WIDTH] = {0};
+      00005F 96               [ 1]  160 	ldw	x, sp
+      000060 1C 00 0E         [ 2]  161 	addw	x, #14
+      000063 1F 18            [ 2]  162 	ldw	(0x18, sp), x
+      000065 7F               [ 1]  163 	clr	(x)
+      000066 1E 18            [ 2]  164 	ldw	x, (0x18, sp)
+      000068 5C               [ 1]  165 	incw	x
+      000069 7F               [ 1]  166 	clr	(x)
+      00006A 1E 18            [ 2]  167 	ldw	x, (0x18, sp)
+      00006C 5C               [ 1]  168 	incw	x
+      00006D 5C               [ 1]  169 	incw	x
+      00006E 7F               [ 1]  170 	clr	(x)
+      00006F 1E 18            [ 2]  171 	ldw	x, (0x18, sp)
+      000071 1C 00 03         [ 2]  172 	addw	x, #0x0003
+      000074 7F               [ 1]  173 	clr	(x)
+      000075 1E 18            [ 2]  174 	ldw	x, (0x18, sp)
+      000077 1C 00 04         [ 2]  175 	addw	x, #0x0004
+      00007A 7F               [ 1]  176 	clr	(x)
+      00007B 1E 18            [ 2]  177 	ldw	x, (0x18, sp)
+      00007D 1C 00 05         [ 2]  178 	addw	x, #0x0005
+      000080 1F 1A            [ 2]  179 	ldw	(0x1a, sp), x
+      000082 7F               [ 1]  180 	clr	(x)
+                                    181 ;	main.c: 12: uint32_t total = 0;
+      000083 5F               [ 1]  182 	clrw	x
+      000084 1F 0C            [ 2]  183 	ldw	(0x0c, sp), x
+      000086 1F 0A            [ 2]  184 	ldw	(0x0a, sp), x
+                                    185 ;	main.c: 13: uint32_t dropped = 0;
+      000088 5F               [ 1]  186 	clrw	x
+      000089 1F 08            [ 2]  187 	ldw	(0x08, sp), x
+      00008B 1F 06            [ 2]  188 	ldw	(0x06, sp), x
+                                    189 ;	main.c: 14: uint8_t last = 0;
+      00008D 0F 05            [ 1]  190 	clr	(0x05, sp)
+                                    191 ;	main.c: 16: CLK_CKDIVR = 3;
+      00008F 35 03 50 C6      [ 1]  192 	mov	0x50c6+0, #0x03
+                                    193 ;	main.c: 18: uart_init();
+      000093 CDr00r00         [ 4]  194 	call	_uart_init
+                                    195 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      000096 0F 04            [ 1]  196 	clr	(0x04, sp)
+      000098 0F 03            [ 1]  197 	clr	(0x03, sp)
+      00009A 4F               [ 1]  198 	clr	a
+      00009B 02               [ 1]  199 	rlwa	x
+      00009C 4F               [ 1]  200 	clr	a
+      00009D 01               [ 1]  201 	rrwa	x
+      00009E                        202 00115$:
+      00009E 88               [ 1]  203 	push	a
+      00009F 7B 05            [ 1]  204 	ld	a, (0x05, sp)
+      0000A1 A1 5C            [ 1]  205 	cp	a, #0x5c
+      0000A3 7B 04            [ 1]  206 	ld	a, (0x04, sp)
+      0000A5 A2 2B            [ 1]  207 	sbc	a, #0x2b
+      0000A7 7B 01            [ 1]  208 	ld	a, (1, sp)
+      0000A9 A2 00            [ 1]  209 	sbc	a, #0x00
+      0000AB 9E               [ 1]  210 	ld	a, xh
+      0000AC A2 00            [ 1]  211 	sbc	a, #0x00
+      0000AE 84               [ 1]  212 	pop	a
+      0000AF 24 13            [ 1]  213 	jrnc	00111$
+                                    214 ;	../../stm8/delay.h: 13: __asm__("nop");
+      0000B1 9D               [ 1]  215 	nop
+                                    216 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      0000B2 16 03            [ 2]  217 	ldw	y, (0x03, sp)
+      0000B4 72 A9 00 01      [ 2]  218 	addw	y, #0x0001
+      0000B8 A9 00            [ 1]  219 	adc	a, #0x00
+      0000BA 88               [ 1]  220 	push	a
+      0000BB 9E               [ 1]  221 	ld	a, xh
+      0000BC A9 00            [ 1]  222 	adc	a, #0x00
+      0000BE 95               [ 1]  223 	ld	xh, a
+      0000BF 84               [ 1]  224 	pop	a
+      0000C0 17 03            [ 2]  225 	ldw	(0x03, sp), y
+      0000C2 20 DA            [ 2]  226 	jra	00115$
+                                    227 ;	main.c: 19: delay_ms(100);
+      0000C4                        228 00111$:
+                                    229 ;	main.c: 21: se8r01_init('r');
+      0000C4 4B 72            [ 1]  230 	push	#0x72
+      0000C6 CDr00r00         [ 4]  231 	call	_se8r01_init
+      0000C9 84               [ 1]  232 	pop	a
+                                    233 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      0000CA 90 5F            [ 1]  234 	clrw	y
+      0000CC 5F               [ 1]  235 	clrw	x
+      0000CD                        236 00118$:
+      0000CD 90 A3 B1 98      [ 2]  237 	cpw	y, #0xb198
+      0000D1 9F               [ 1]  238 	ld	a, xl
+      0000D2 A2 01            [ 1]  239 	sbc	a, #0x01
+      0000D4 9E               [ 1]  240 	ld	a, xh
+      0000D5 A2 00            [ 1]  241 	sbc	a, #0x00
+      0000D7 24 08            [ 1]  242 	jrnc	00108$
+                                    243 ;	../../stm8/delay.h: 13: __asm__("nop");
+      0000D9 9D               [ 1]  244 	nop
+                                    245 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      0000DA 90 5C            [ 1]  246 	incw	y
+      0000DC 26 EF            [ 1]  247 	jrne	00118$
+      0000DE 5C               [ 1]  248 	incw	x
+      0000DF 20 EC            [ 2]  249 	jra	00118$
+                                    250 ;	main.c: 24: while (1) {
+      0000E1                        251 00108$:
+                                    252 ;	main.c: 25: if (se8r01_wait_rx(rx_buf)){
+      0000E1 1E 18            [ 2]  253 	ldw	x, (0x18, sp)
+      0000E3 89               [ 2]  254 	pushw	x
+      0000E4 CDr00r00         [ 4]  255 	call	_se8r01_wait_rx
+      0000E7 5B 02            [ 2]  256 	addw	sp, #2
+      0000E9 6B 1E            [ 1]  257 	ld	(0x1e, sp), a
+                                    258 ;	main.c: 26: PD_ODR |= (1<<4);
+      0000EB AE 50 0F         [ 2]  259 	ldw	x, #0x500f
+      0000EE F6               [ 1]  260 	ld	a, (x)
+      0000EF 6B 14            [ 1]  261 	ld	(0x14, sp), a
+                                    262 ;	main.c: 25: if (se8r01_wait_rx(rx_buf)){
+      0000F1 0D 1E            [ 1]  263 	tnz	(0x1e, sp)
+      0000F3 26 03            [ 1]  264 	jrne	00157$
+      0000F5 CCr01r8A         [ 2]  265 	jp	00105$
+      0000F8                        266 00157$:
+                                    267 ;	main.c: 26: PD_ODR |= (1<<4);
+      0000F8 7B 14            [ 1]  268 	ld	a, (0x14, sp)
+      0000FA AA 10            [ 1]  269 	or	a, #0x10
+      0000FC AE 50 0F         [ 2]  270 	ldw	x, #0x500f
+      0000FF F7               [ 1]  271 	ld	(x), a
+                                    272 ;	main.c: 32: if (rx_buf[TX_PLOAD_WIDTH-1] != last+6 && last != 0){
+      000100 1E 1A            [ 2]  273 	ldw	x, (0x1a, sp)
+      000102 F6               [ 1]  274 	ld	a, (x)
+      000103 6B 15            [ 1]  275 	ld	(0x15, sp), a
+      000105 5F               [ 1]  276 	clrw	x
+      000106 7B 05            [ 1]  277 	ld	a, (0x05, sp)
+      000108 97               [ 1]  278 	ld	xl, a
+      000109 1C 00 06         [ 2]  279 	addw	x, #0x0006
+      00010C 1F 1C            [ 2]  280 	ldw	(0x1c, sp), x
+      00010E 5F               [ 1]  281 	clrw	x
+      00010F 7B 15            [ 1]  282 	ld	a, (0x15, sp)
+      000111 97               [ 1]  283 	ld	xl, a
+      000112 13 1C            [ 2]  284 	cpw	x, (0x1c, sp)
+      000114 27 18            [ 1]  285 	jreq	00102$
+      000116 0D 05            [ 1]  286 	tnz	(0x05, sp)
+      000118 27 14            [ 1]  287 	jreq	00102$
+                                    288 ;	main.c: 33: dropped++;
+      00011A 16 08            [ 2]  289 	ldw	y, (0x08, sp)
+      00011C 72 A9 00 01      [ 2]  290 	addw	y, #0x0001
+      000120 7B 07            [ 1]  291 	ld	a, (0x07, sp)
+      000122 A9 00            [ 1]  292 	adc	a, #0x00
+      000124 97               [ 1]  293 	ld	xl, a
+      000125 7B 06            [ 1]  294 	ld	a, (0x06, sp)
+      000127 A9 00            [ 1]  295 	adc	a, #0x00
+      000129 95               [ 1]  296 	ld	xh, a
+      00012A 17 08            [ 2]  297 	ldw	(0x08, sp), y
+      00012C 1F 06            [ 2]  298 	ldw	(0x06, sp), x
+      00012E                        299 00102$:
+                                    300 ;	main.c: 35: total++;
+      00012E 16 0C            [ 2]  301 	ldw	y, (0x0c, sp)
+      000130 72 A9 00 01      [ 2]  302 	addw	y, #0x0001
+      000134 7B 0B            [ 1]  303 	ld	a, (0x0b, sp)
+      000136 A9 00            [ 1]  304 	adc	a, #0x00
+      000138 97               [ 1]  305 	ld	xl, a
+      000139 7B 0A            [ 1]  306 	ld	a, (0x0a, sp)
+      00013B A9 00            [ 1]  307 	adc	a, #0x00
+      00013D 95               [ 1]  308 	ld	xh, a
+      00013E 17 0C            [ 2]  309 	ldw	(0x0c, sp), y
+      000140 1F 0A            [ 2]  310 	ldw	(0x0a, sp), x
+                                    311 ;	main.c: 36: last = rx_buf[TX_PLOAD_WIDTH-1];
+      000142 7B 15            [ 1]  312 	ld	a, (0x15, sp)
+      000144 6B 05            [ 1]  313 	ld	(0x05, sp), a
+                                    314 ;	main.c: 37: printf("total: %d, ", (int) total);
+      000146 16 0C            [ 2]  315 	ldw	y, (0x0c, sp)
+      000148 17 16            [ 2]  316 	ldw	(0x16, sp), y
+      00014A AEr01r98         [ 2]  317 	ldw	x, #___str_0+0
+      00014D 16 16            [ 2]  318 	ldw	y, (0x16, sp)
+      00014F 90 89            [ 2]  319 	pushw	y
+      000151 89               [ 2]  320 	pushw	x
+      000152 CDr00r00         [ 4]  321 	call	_printf
+      000155 5B 04            [ 2]  322 	addw	sp, #4
+                                    323 ;	main.c: 38: printf("dropped: %d, ", (int) dropped);
+      000157 1E 08            [ 2]  324 	ldw	x, (0x08, sp)
+      000159 90 AEr01rA4      [ 2]  325 	ldw	y, #___str_1+0
+      00015D 89               [ 2]  326 	pushw	x
+      00015E 89               [ 2]  327 	pushw	x
+      00015F 90 89            [ 2]  328 	pushw	y
+      000161 CDr00r00         [ 4]  329 	call	_printf
+      000164 5B 04            [ 2]  330 	addw	sp, #4
+      000166 85               [ 2]  331 	popw	x
+                                    332 ;	main.c: 39: printf("->: %d\n", ((int) dropped*100)/(int) total);
+      000167 89               [ 2]  333 	pushw	x
+      000168 4B 64            [ 1]  334 	push	#0x64
+      00016A 4B 00            [ 1]  335 	push	#0x00
+      00016C CDr00r00         [ 4]  336 	call	__mulint
+      00016F 5B 04            [ 2]  337 	addw	sp, #4
+      000171 16 16            [ 2]  338 	ldw	y, (0x16, sp)
+      000173 90 89            [ 2]  339 	pushw	y
+      000175 89               [ 2]  340 	pushw	x
+      000176 CDr00r00         [ 4]  341 	call	__divsint
+      000179 5B 04            [ 2]  342 	addw	sp, #4
+      00017B 90 AEr01rB2      [ 2]  343 	ldw	y, #___str_2+0
+      00017F 89               [ 2]  344 	pushw	x
+      000180 90 89            [ 2]  345 	pushw	y
+      000182 CDr00r00         [ 4]  346 	call	_printf
+      000185 5B 04            [ 2]  347 	addw	sp, #4
+      000187 CCr00rE1         [ 2]  348 	jp	00108$
+      00018A                        349 00105$:
+                                    350 ;	main.c: 41: PD_ODR &= ~(1<<4);
+      00018A 7B 14            [ 1]  351 	ld	a, (0x14, sp)
+      00018C A4 EF            [ 1]  352 	and	a, #0xef
+      00018E AE 50 0F         [ 2]  353 	ldw	x, #0x500f
+      000191 F7               [ 1]  354 	ld	(x), a
+      000192 CCr00rE1         [ 2]  355 	jp	00108$
+      000195 5B 1E            [ 2]  356 	addw	sp, #30
+      000197 81               [ 4]  357 	ret
+                                    358 	.area CODE
+      000198                        359 ___str_0:
+      000198 74 6F 74 61 6C 3A 20   360 	.ascii "total: %d, "
+             25 64 2C 20
+      0001A3 00                     361 	.db 0x00
+      0001A4                        362 ___str_1:
+      0001A4 64 72 6F 70 70 65 64   363 	.ascii "dropped: %d, "
+             3A 20 25 64 2C 20
+      0001B1 00                     364 	.db 0x00
+      0001B2                        365 ___str_2:
+      0001B2 2D 3E 3A 20 25 64      366 	.ascii "->: %d"
+      0001B8 0A                     367 	.db 0x0a
+      0001B9 00                     368 	.db 0x00
+                                    369 	.area INITIALIZER
+                                    370 	.area CABS (ABS)

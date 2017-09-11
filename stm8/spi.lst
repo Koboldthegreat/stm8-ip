@@ -1,0 +1,299 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 3.6.8 #9946 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module spi
+                                      6 	.optsdcc -mstm8
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _SPI_init
+                                     12 	.globl _SPI_read
+                                     13 	.globl _SPI_write
+                                     14 	.globl _SPI_write_read
+                                     15 	.globl _init_bit
+                                     16 	.globl _SPI_write_read_bit
+                                     17 ;--------------------------------------------------------
+                                     18 ; ram data
+                                     19 ;--------------------------------------------------------
+                                     20 	.area DATA
+                                     21 ;--------------------------------------------------------
+                                     22 ; ram data
+                                     23 ;--------------------------------------------------------
+                                     24 	.area INITIALIZED
+                                     25 ;--------------------------------------------------------
+                                     26 ; absolute external ram data
+                                     27 ;--------------------------------------------------------
+                                     28 	.area DABS (ABS)
+                                     29 ;--------------------------------------------------------
+                                     30 ; global & static initialisations
+                                     31 ;--------------------------------------------------------
+                                     32 	.area HOME
+                                     33 	.area GSINIT
+                                     34 	.area GSFINAL
+                                     35 	.area GSINIT
+                                     36 ;--------------------------------------------------------
+                                     37 ; Home
+                                     38 ;--------------------------------------------------------
+                                     39 	.area HOME
+                                     40 	.area HOME
+                                     41 ;--------------------------------------------------------
+                                     42 ; code
+                                     43 ;--------------------------------------------------------
+                                     44 	.area CODE
+                                     45 ;	../../stm8/delay.h: 11: static inline void delay_ms(uint32_t ms) {
+                                     46 ;	-----------------------------------------
+                                     47 ;	 function delay_ms
+                                     48 ;	-----------------------------------------
+      000000                         49 _delay_ms:
+      000000 52 08            [ 2]   50 	sub	sp, #8
+                                     51 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      000002 5F               [ 1]   52 	clrw	x
+      000003 1F 03            [ 2]   53 	ldw	(0x03, sp), x
+      000005 1F 01            [ 2]   54 	ldw	(0x01, sp), x
+      000007 1E 0D            [ 2]   55 	ldw	x, (0x0d, sp)
+      000009 89               [ 2]   56 	pushw	x
+      00000A 1E 0D            [ 2]   57 	ldw	x, (0x0d, sp)
+      00000C 89               [ 2]   58 	pushw	x
+      00000D 4B 6F            [ 1]   59 	push	#0x6f
+      00000F 5F               [ 1]   60 	clrw	x
+      000010 89               [ 2]   61 	pushw	x
+      000011 4B 00            [ 1]   62 	push	#0x00
+      000013 CDr00r00         [ 4]   63 	call	__mullong
+      000016 5B 08            [ 2]   64 	addw	sp, #8
+      000018 1F 07            [ 2]   65 	ldw	(0x07, sp), x
+      00001A 17 05            [ 2]   66 	ldw	(0x05, sp), y
+      00001C                         67 00103$:
+      00001C 1E 03            [ 2]   68 	ldw	x, (0x03, sp)
+      00001E 13 07            [ 2]   69 	cpw	x, (0x07, sp)
+      000020 7B 02            [ 1]   70 	ld	a, (0x02, sp)
+      000022 12 06            [ 1]   71 	sbc	a, (0x06, sp)
+      000024 7B 01            [ 1]   72 	ld	a, (0x01, sp)
+      000026 12 05            [ 1]   73 	sbc	a, (0x05, sp)
+      000028 24 17            [ 1]   74 	jrnc	00105$
+                                     75 ;	../../stm8/delay.h: 13: __asm__("nop");
+      00002A 9D               [ 1]   76 	nop
+                                     77 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      00002B 16 03            [ 2]   78 	ldw	y, (0x03, sp)
+      00002D 72 A9 00 01      [ 2]   79 	addw	y, #0x0001
+      000031 7B 02            [ 1]   80 	ld	a, (0x02, sp)
+      000033 A9 00            [ 1]   81 	adc	a, #0x00
+      000035 97               [ 1]   82 	ld	xl, a
+      000036 7B 01            [ 1]   83 	ld	a, (0x01, sp)
+      000038 A9 00            [ 1]   84 	adc	a, #0x00
+      00003A 95               [ 1]   85 	ld	xh, a
+      00003B 17 03            [ 2]   86 	ldw	(0x03, sp), y
+      00003D 1F 01            [ 2]   87 	ldw	(0x01, sp), x
+      00003F 20 DB            [ 2]   88 	jra	00103$
+      000041                         89 00105$:
+      000041 5B 08            [ 2]   90 	addw	sp, #8
+      000043 81               [ 4]   91 	ret
+                                     92 ;	../../stm8/delay.h: 17: static inline void delay_us(uint32_t us) {
+                                     93 ;	-----------------------------------------
+                                     94 ;	 function delay_us
+                                     95 ;	-----------------------------------------
+      000044                         96 _delay_us:
+                                     97 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000044 90 5F            [ 1]   98 	clrw	y
+      000046 5F               [ 1]   99 	clrw	x
+      000047                        100 00103$:
+      000047 90 A3 00 00      [ 2]  101 	cpw	y, #0x0000
+      00004B 9F               [ 1]  102 	ld	a, xl
+      00004C A2 00            [ 1]  103 	sbc	a, #0x00
+      00004E 9E               [ 1]  104 	ld	a, xh
+      00004F A2 00            [ 1]  105 	sbc	a, #0x00
+      000051 25 01            [ 1]  106 	jrc	00115$
+      000053 81               [ 4]  107 	ret
+      000054                        108 00115$:
+                                    109 ;	../../stm8/delay.h: 19: __asm__("nop");
+      000054 9D               [ 1]  110 	nop
+                                    111 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000055 90 5C            [ 1]  112 	incw	y
+      000057 26 EE            [ 1]  113 	jrne	00103$
+      000059 5C               [ 1]  114 	incw	x
+      00005A 20 EB            [ 2]  115 	jra	00103$
+      00005C 81               [ 4]  116 	ret
+                                    117 ;	../../stm8/spi.c: 5: void SPI_init() {
+                                    118 ;	-----------------------------------------
+                                    119 ;	 function SPI_init
+                                    120 ;	-----------------------------------------
+      00005D                        121 _SPI_init:
+                                    122 ;	../../stm8/spi.c: 6: SPI_CR1 |= (1 << SPI_CR1_MSTR) | (1<<SPI_CR1_BR0); 
+      00005D AE 52 00         [ 2]  123 	ldw	x, #0x5200
+      000060 F6               [ 1]  124 	ld	a, (x)
+      000061 AA 0C            [ 1]  125 	or	a, #0x0c
+      000063 F7               [ 1]  126 	ld	(x), a
+                                    127 ;	../../stm8/spi.c: 7: SPI_CR2 |= (1 << SPI_CR2_SSM) | (1<<SPI_CR2_SSI);
+      000064 AE 52 01         [ 2]  128 	ldw	x, #0x5201
+      000067 F6               [ 1]  129 	ld	a, (x)
+      000068 AA 03            [ 1]  130 	or	a, #0x03
+      00006A F7               [ 1]  131 	ld	(x), a
+                                    132 ;	../../stm8/spi.c: 8: SPI_CR1 |= (1 << SPI_CR1_SPE);
+      00006B AE 52 00         [ 2]  133 	ldw	x, #0x5200
+      00006E F6               [ 1]  134 	ld	a, (x)
+      00006F AA 40            [ 1]  135 	or	a, #0x40
+      000071 F7               [ 1]  136 	ld	(x), a
+      000072 81               [ 4]  137 	ret
+                                    138 ;	../../stm8/spi.c: 11: uint8_t SPI_read() {
+                                    139 ;	-----------------------------------------
+                                    140 ;	 function SPI_read
+                                    141 ;	-----------------------------------------
+      000073                        142 _SPI_read:
+                                    143 ;	../../stm8/spi.c: 12: SPI_write(0xFF);
+      000073 4B FF            [ 1]  144 	push	#0xff
+      000075 CDr00r85         [ 4]  145 	call	_SPI_write
+      000078 84               [ 1]  146 	pop	a
+                                    147 ;	../../stm8/spi.c: 13: while (!(SPI_SR & (1 << SPI_SR_RXNE))); //wait till byte received
+      000079                        148 00101$:
+      000079 AE 52 03         [ 2]  149 	ldw	x, #0x5203
+      00007C F6               [ 1]  150 	ld	a, (x)
+      00007D 44               [ 1]  151 	srl	a
+      00007E 24 F9            [ 1]  152 	jrnc	00101$
+                                    153 ;	../../stm8/spi.c: 14: return SPI_DR;
+      000080 AE 52 04         [ 2]  154 	ldw	x, #0x5204
+      000083 F6               [ 1]  155 	ld	a, (x)
+      000084 81               [ 4]  156 	ret
+                                    157 ;	../../stm8/spi.c: 17: void SPI_write(uint8_t data) {
+                                    158 ;	-----------------------------------------
+                                    159 ;	 function SPI_write
+                                    160 ;	-----------------------------------------
+      000085                        161 _SPI_write:
+                                    162 ;	../../stm8/spi.c: 18: SPI_DR = data;
+      000085 AE 52 04         [ 2]  163 	ldw	x, #0x5204
+      000088 7B 03            [ 1]  164 	ld	a, (0x03, sp)
+      00008A F7               [ 1]  165 	ld	(x), a
+                                    166 ;	../../stm8/spi.c: 19: while (!(SPI_SR & (1 << SPI_SR_TXE)));
+      00008B                        167 00101$:
+      00008B AE 52 03         [ 2]  168 	ldw	x, #0x5203
+      00008E F6               [ 1]  169 	ld	a, (x)
+      00008F A5 02            [ 1]  170 	bcp	a, #0x02
+      000091 27 F8            [ 1]  171 	jreq	00101$
+                                    172 ;	../../stm8/spi.c: 20: while ((SPI_SR & (1<<SPI_SR_BSY))); //wait till byte Send`
+      000093                        173 00104$:
+      000093 4D               [ 1]  174 	tnz	a
+      000094 2B FD            [ 1]  175 	jrmi	00104$
+      000096 81               [ 4]  176 	ret
+                                    177 ;	../../stm8/spi.c: 23: uint8_t SPI_write_read(uint8_t data) {
+                                    178 ;	-----------------------------------------
+                                    179 ;	 function SPI_write_read
+                                    180 ;	-----------------------------------------
+      000097                        181 _SPI_write_read:
+      000097 88               [ 1]  182 	push	a
+                                    183 ;	../../stm8/spi.c: 26: SPI_DR = data;
+      000098 AE 52 04         [ 2]  184 	ldw	x, #0x5204
+      00009B 7B 04            [ 1]  185 	ld	a, (0x04, sp)
+      00009D F7               [ 1]  186 	ld	(x), a
+                                    187 ;	../../stm8/spi.c: 27: while (!(SPI_SR & (1 << SPI_SR_RXNE))); //wait till byte received
+      00009E                        188 00101$:
+      00009E AE 52 03         [ 2]  189 	ldw	x, #0x5203
+      0000A1 F6               [ 1]  190 	ld	a, (x)
+      0000A2 44               [ 1]  191 	srl	a
+      0000A3 24 F9            [ 1]  192 	jrnc	00101$
+                                    193 ;	../../stm8/spi.c: 28: rcv = SPI_DR;
+      0000A5 AE 52 04         [ 2]  194 	ldw	x, #0x5204
+      0000A8 F6               [ 1]  195 	ld	a, (x)
+      0000A9 6B 01            [ 1]  196 	ld	(0x01, sp), a
+                                    197 ;	../../stm8/spi.c: 29: while (!(SPI_SR & (1<<SPI_SR_TXE))); //wait till byte Send`
+      0000AB                        198 00104$:
+                                    199 ;	../../stm8/spi.c: 27: while (!(SPI_SR & (1 << SPI_SR_RXNE))); //wait till byte received
+      0000AB AE 52 03         [ 2]  200 	ldw	x, #0x5203
+      0000AE F6               [ 1]  201 	ld	a, (x)
+                                    202 ;	../../stm8/spi.c: 29: while (!(SPI_SR & (1<<SPI_SR_TXE))); //wait till byte Send`
+      0000AF A5 02            [ 1]  203 	bcp	a, #0x02
+      0000B1 27 F8            [ 1]  204 	jreq	00104$
+                                    205 ;	../../stm8/spi.c: 30: while ((SPI_SR & (1<<SPI_SR_BSY))); //wait till byte Send`
+      0000B3                        206 00107$:
+      0000B3 4D               [ 1]  207 	tnz	a
+      0000B4 2B FD            [ 1]  208 	jrmi	00107$
+                                    209 ;	../../stm8/spi.c: 31: return rcv;
+      0000B6 7B 01            [ 1]  210 	ld	a, (0x01, sp)
+      0000B8 5B 01            [ 2]  211 	addw	sp, #1
+      0000BA 81               [ 4]  212 	ret
+                                    213 ;	../../stm8/spi.c: 35: void init_bit() {
+                                    214 ;	-----------------------------------------
+                                    215 ;	 function init_bit
+                                    216 ;	-----------------------------------------
+      0000BB                        217 _init_bit:
+                                    218 ;	../../stm8/spi.c: 36: PC_DDR |= (1<<5) | (1<<6); //output
+      0000BB AE 50 0C         [ 2]  219 	ldw	x, #0x500c
+      0000BE F6               [ 1]  220 	ld	a, (x)
+      0000BF AA 60            [ 1]  221 	or	a, #0x60
+      0000C1 F7               [ 1]  222 	ld	(x), a
+                                    223 ;	../../stm8/spi.c: 37: PC_CR1 |= (1<<5) | (1<<6); //push-pull
+      0000C2 AE 50 0D         [ 2]  224 	ldw	x, #0x500d
+      0000C5 F6               [ 1]  225 	ld	a, (x)
+      0000C6 AA 60            [ 1]  226 	or	a, #0x60
+      0000C8 F7               [ 1]  227 	ld	(x), a
+                                    228 ;	../../stm8/spi.c: 38: PC_CR2 |= (1<<5) | (1<<6); //10Mhz speed
+      0000C9 AE 50 0E         [ 2]  229 	ldw	x, #0x500e
+      0000CC F6               [ 1]  230 	ld	a, (x)
+      0000CD AA 60            [ 1]  231 	or	a, #0x60
+      0000CF F7               [ 1]  232 	ld	(x), a
+                                    233 ;	../../stm8/spi.c: 40: PC_DDR &= ~(1<<7); //Input
+      0000D0 72 1F 50 0C      [ 1]  234 	bres	0x500c, #7
+                                    235 ;	../../stm8/spi.c: 41: PC_CR1 &= ~(1<<7); //No pull-up
+      0000D4 72 1F 50 0D      [ 1]  236 	bres	0x500d, #7
+                                    237 ;	../../stm8/spi.c: 42: PC_CR2 &= ~(1<<7); //disable external interupt
+      0000D8 72 1F 50 0E      [ 1]  238 	bres	0x500e, #7
+      0000DC 81               [ 4]  239 	ret
+                                    240 ;	../../stm8/spi.c: 45: uint8_t SPI_write_read_bit(uint8_t byte) {
+                                    241 ;	-----------------------------------------
+                                    242 ;	 function SPI_write_read_bit
+                                    243 ;	-----------------------------------------
+      0000DD                        244 _SPI_write_read_bit:
+                                    245 ;	../../stm8/spi.c: 46: for(uint8_t i=0; i<8; i++) {
+      0000DD 4F               [ 1]  246 	clr	a
+      0000DE 90 97            [ 1]  247 	ld	yl, a
+      0000E0                        248 00108$:
+      0000E0 90 9F            [ 1]  249 	ld	a, yl
+      0000E2 A1 08            [ 1]  250 	cp	a, #0x08
+      0000E4 24 36            [ 1]  251 	jrnc	00106$
+                                    252 ;	../../stm8/spi.c: 48: PC_ODR |= (1<<6);
+      0000E6 AE 50 0A         [ 2]  253 	ldw	x, #0x500a
+      0000E9 F6               [ 1]  254 	ld	a, (x)
+                                    255 ;	../../stm8/spi.c: 47: if(byte & 0x80) {
+      0000EA 0D 03            [ 1]  256 	tnz	(0x03, sp)
+      0000EC 2A 08            [ 1]  257 	jrpl	00102$
+                                    258 ;	../../stm8/spi.c: 48: PC_ODR |= (1<<6);
+      0000EE AA 40            [ 1]  259 	or	a, #0x40
+      0000F0 AE 50 0A         [ 2]  260 	ldw	x, #0x500a
+      0000F3 F7               [ 1]  261 	ld	(x), a
+      0000F4 20 06            [ 2]  262 	jra	00103$
+      0000F6                        263 00102$:
+                                    264 ;	../../stm8/spi.c: 50: PC_ODR &= ~(1<<6);
+      0000F6 A4 BF            [ 1]  265 	and	a, #0xbf
+      0000F8 AE 50 0A         [ 2]  266 	ldw	x, #0x500a
+      0000FB F7               [ 1]  267 	ld	(x), a
+      0000FC                        268 00103$:
+                                    269 ;	../../stm8/spi.c: 52: PC_ODR |= (1<<5);
+      0000FC AE 50 0A         [ 2]  270 	ldw	x, #0x500a
+      0000FF F6               [ 1]  271 	ld	a, (x)
+      000100 AA 20            [ 1]  272 	or	a, #0x20
+      000102 F7               [ 1]  273 	ld	(x), a
+                                    274 ;	../../stm8/spi.c: 53: byte <<= 1;
+      000103 08 03            [ 1]  275 	sll	(0x03, sp)
+                                    276 ;	../../stm8/spi.c: 54: if(PC_IDR & (1<<7)) {
+      000105 AE 50 0B         [ 2]  277 	ldw	x, #0x500b
+      000108 F6               [ 1]  278 	ld	a, (x)
+      000109 2A 06            [ 1]  279 	jrpl	00105$
+                                    280 ;	../../stm8/spi.c: 55: byte |=1;
+      00010B 7B 03            [ 1]  281 	ld	a, (0x03, sp)
+      00010D AA 01            [ 1]  282 	or	a, #0x01
+      00010F 6B 03            [ 1]  283 	ld	(0x03, sp), a
+      000111                        284 00105$:
+                                    285 ;	../../stm8/spi.c: 57: PC_ODR &= ~(1<<5);
+      000111 AE 50 0A         [ 2]  286 	ldw	x, #0x500a
+      000114 F6               [ 1]  287 	ld	a, (x)
+      000115 A4 DF            [ 1]  288 	and	a, #0xdf
+      000117 F7               [ 1]  289 	ld	(x), a
+                                    290 ;	../../stm8/spi.c: 46: for(uint8_t i=0; i<8; i++) {
+      000118 90 5C            [ 1]  291 	incw	y
+      00011A 20 C4            [ 2]  292 	jra	00108$
+      00011C                        293 00106$:
+                                    294 ;	../../stm8/spi.c: 59: return byte;
+      00011C 7B 03            [ 1]  295 	ld	a, (0x03, sp)
+      00011E 81               [ 4]  296 	ret
+                                    297 	.area CODE
+                                    298 	.area INITIALIZER
+                                    299 	.area CABS (ABS)

@@ -1,0 +1,1359 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 3.6.8 #9946 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module se8r01
+                                      6 	.optsdcc -mstm8
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _printf
+                                     12 	.globl _uart_read
+                                     13 	.globl _uart_write
+                                     14 	.globl _init_bit
+                                     15 	.globl _SPI_write_read_bit
+                                     16 	.globl _putchar
+                                     17 	.globl _getchar
+                                     18 	.globl _SPI_write_read_reg
+                                     19 	.globl _SPI_write_buf
+                                     20 	.globl _SPI_read_buf
+                                     21 	.globl _se8r01_init
+                                     22 	.globl _se8r01_wait_rx
+                                     23 	.globl _se8r01_tx
+                                     24 	.globl _se8r01_get_status
+                                     25 	.globl _init_io
+                                     26 	.globl _clear_IRQ_flags
+                                     27 	.globl _rf_switch_bank
+                                     28 	.globl _se8r01_powerup
+                                     29 	.globl _se8r01_calibration
+                                     30 	.globl _se8r01_setup
+                                     31 	.globl _se8r01_settings
+                                     32 	.globl _se8r01_flush_TX
+                                     33 	.globl _se8r01_flush_RX
+                                     34 ;--------------------------------------------------------
+                                     35 ; ram data
+                                     36 ;--------------------------------------------------------
+                                     37 	.area DATA
+                                     38 ;--------------------------------------------------------
+                                     39 ; ram data
+                                     40 ;--------------------------------------------------------
+                                     41 	.area INITIALIZED
+                                     42 ;--------------------------------------------------------
+                                     43 ; absolute external ram data
+                                     44 ;--------------------------------------------------------
+                                     45 	.area DABS (ABS)
+                                     46 ;--------------------------------------------------------
+                                     47 ; global & static initialisations
+                                     48 ;--------------------------------------------------------
+                                     49 	.area HOME
+                                     50 	.area GSINIT
+                                     51 	.area GSFINAL
+                                     52 	.area GSINIT
+                                     53 ;--------------------------------------------------------
+                                     54 ; Home
+                                     55 ;--------------------------------------------------------
+                                     56 	.area HOME
+                                     57 	.area HOME
+                                     58 ;--------------------------------------------------------
+                                     59 ; code
+                                     60 ;--------------------------------------------------------
+                                     61 	.area CODE
+                                     62 ;	../../stm8/delay.h: 11: static inline void delay_ms(uint32_t ms) {
+                                     63 ;	-----------------------------------------
+                                     64 ;	 function delay_ms
+                                     65 ;	-----------------------------------------
+      000000                         66 _delay_ms:
+      000000 52 08            [ 2]   67 	sub	sp, #8
+                                     68 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      000002 5F               [ 1]   69 	clrw	x
+      000003 1F 03            [ 2]   70 	ldw	(0x03, sp), x
+      000005 1F 01            [ 2]   71 	ldw	(0x01, sp), x
+      000007 1E 0D            [ 2]   72 	ldw	x, (0x0d, sp)
+      000009 89               [ 2]   73 	pushw	x
+      00000A 1E 0D            [ 2]   74 	ldw	x, (0x0d, sp)
+      00000C 89               [ 2]   75 	pushw	x
+      00000D 4B 6F            [ 1]   76 	push	#0x6f
+      00000F 5F               [ 1]   77 	clrw	x
+      000010 89               [ 2]   78 	pushw	x
+      000011 4B 00            [ 1]   79 	push	#0x00
+      000013 CDr00r00         [ 4]   80 	call	__mullong
+      000016 5B 08            [ 2]   81 	addw	sp, #8
+      000018 1F 07            [ 2]   82 	ldw	(0x07, sp), x
+      00001A 17 05            [ 2]   83 	ldw	(0x05, sp), y
+      00001C                         84 00103$:
+      00001C 1E 03            [ 2]   85 	ldw	x, (0x03, sp)
+      00001E 13 07            [ 2]   86 	cpw	x, (0x07, sp)
+      000020 7B 02            [ 1]   87 	ld	a, (0x02, sp)
+      000022 12 06            [ 1]   88 	sbc	a, (0x06, sp)
+      000024 7B 01            [ 1]   89 	ld	a, (0x01, sp)
+      000026 12 05            [ 1]   90 	sbc	a, (0x05, sp)
+      000028 24 17            [ 1]   91 	jrnc	00105$
+                                     92 ;	../../stm8/delay.h: 13: __asm__("nop");
+      00002A 9D               [ 1]   93 	nop
+                                     94 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      00002B 16 03            [ 2]   95 	ldw	y, (0x03, sp)
+      00002D 72 A9 00 01      [ 2]   96 	addw	y, #0x0001
+      000031 7B 02            [ 1]   97 	ld	a, (0x02, sp)
+      000033 A9 00            [ 1]   98 	adc	a, #0x00
+      000035 97               [ 1]   99 	ld	xl, a
+      000036 7B 01            [ 1]  100 	ld	a, (0x01, sp)
+      000038 A9 00            [ 1]  101 	adc	a, #0x00
+      00003A 95               [ 1]  102 	ld	xh, a
+      00003B 17 03            [ 2]  103 	ldw	(0x03, sp), y
+      00003D 1F 01            [ 2]  104 	ldw	(0x01, sp), x
+      00003F 20 DB            [ 2]  105 	jra	00103$
+      000041                        106 00105$:
+      000041 5B 08            [ 2]  107 	addw	sp, #8
+      000043 81               [ 4]  108 	ret
+                                    109 ;	../../stm8/delay.h: 17: static inline void delay_us(uint32_t us) {
+                                    110 ;	-----------------------------------------
+                                    111 ;	 function delay_us
+                                    112 ;	-----------------------------------------
+      000044                        113 _delay_us:
+                                    114 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000044 90 5F            [ 1]  115 	clrw	y
+      000046 5F               [ 1]  116 	clrw	x
+      000047                        117 00103$:
+      000047 90 A3 00 00      [ 2]  118 	cpw	y, #0x0000
+      00004B 9F               [ 1]  119 	ld	a, xl
+      00004C A2 00            [ 1]  120 	sbc	a, #0x00
+      00004E 9E               [ 1]  121 	ld	a, xh
+      00004F A2 00            [ 1]  122 	sbc	a, #0x00
+      000051 25 01            [ 1]  123 	jrc	00115$
+      000053 81               [ 4]  124 	ret
+      000054                        125 00115$:
+                                    126 ;	../../stm8/delay.h: 19: __asm__("nop");
+      000054 9D               [ 1]  127 	nop
+                                    128 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000055 90 5C            [ 1]  129 	incw	y
+      000057 26 EE            [ 1]  130 	jrne	00103$
+      000059 5C               [ 1]  131 	incw	x
+      00005A 20 EB            [ 2]  132 	jra	00103$
+      00005C 81               [ 4]  133 	ret
+                                    134 ;	../../stm8/se8r01.c: 13: int putchar(int c) {
+                                    135 ;	-----------------------------------------
+                                    136 ;	 function putchar
+                                    137 ;	-----------------------------------------
+      00005D                        138 _putchar:
+                                    139 ;	../../stm8/se8r01.c: 14: uart_write(c);
+      00005D 7B 04            [ 1]  140 	ld	a, (0x04, sp)
+      00005F 88               [ 1]  141 	push	a
+      000060 CDr00r00         [ 4]  142 	call	_uart_write
+      000063 84               [ 1]  143 	pop	a
+                                    144 ;	../../stm8/se8r01.c: 15: return 0;
+      000064 5F               [ 1]  145 	clrw	x
+      000065 81               [ 4]  146 	ret
+                                    147 ;	../../stm8/se8r01.c: 18: char getchar() {
+                                    148 ;	-----------------------------------------
+                                    149 ;	 function getchar
+                                    150 ;	-----------------------------------------
+      000066                        151 _getchar:
+                                    152 ;	../../stm8/se8r01.c: 19: return uart_read();
+      000066 CCr00r00         [ 2]  153 	jp	_uart_read
+                                    154 ;	../../stm8/se8r01.c: 22: uint8_t SPI_write_read_reg(uint8_t reg, uint8_t value) {
+                                    155 ;	-----------------------------------------
+                                    156 ;	 function SPI_write_read_reg
+                                    157 ;	-----------------------------------------
+      000069                        158 _SPI_write_read_reg:
+      000069 88               [ 1]  159 	push	a
+                                    160 ;	../../stm8/se8r01.c: 25: CSN_L(); //enable spi
+      00006A AE 50 0A         [ 2]  161 	ldw	x, #0x500a
+      00006D F6               [ 1]  162 	ld	a, (x)
+      00006E A4 EF            [ 1]  163 	and	a, #0xef
+      000070 F7               [ 1]  164 	ld	(x), a
+                                    165 ;	../../stm8/se8r01.c: 26: status = SPI_write_read_bit(reg); //select register
+      000071 7B 04            [ 1]  166 	ld	a, (0x04, sp)
+      000073 88               [ 1]  167 	push	a
+      000074 CDr00r00         [ 4]  168 	call	_SPI_write_read_bit
+      000077 5B 01            [ 2]  169 	addw	sp, #1
+      000079 6B 01            [ 1]  170 	ld	(0x01, sp), a
+                                    171 ;	../../stm8/se8r01.c: 27: SPI_write_read_bit(value); //write value to it
+      00007B 7B 05            [ 1]  172 	ld	a, (0x05, sp)
+      00007D 88               [ 1]  173 	push	a
+      00007E CDr00r00         [ 4]  174 	call	_SPI_write_read_bit
+      000081 84               [ 1]  175 	pop	a
+                                    176 ;	../../stm8/se8r01.c: 28: CSN_H(); //disable spi
+      000082 AE 50 0A         [ 2]  177 	ldw	x, #0x500a
+      000085 F6               [ 1]  178 	ld	a, (x)
+      000086 AA 10            [ 1]  179 	or	a, #0x10
+      000088 F7               [ 1]  180 	ld	(x), a
+                                    181 ;	../../stm8/se8r01.c: 30: return status;
+      000089 7B 01            [ 1]  182 	ld	a, (0x01, sp)
+      00008B 5B 01            [ 2]  183 	addw	sp, #1
+      00008D 81               [ 4]  184 	ret
+                                    185 ;	../../stm8/se8r01.c: 33: uint8_t SPI_write_buf(uint8_t reg, uint8_t *pBuf, uint8_t bytes) {
+                                    186 ;	-----------------------------------------
+                                    187 ;	 function SPI_write_buf
+                                    188 ;	-----------------------------------------
+      00008E                        189 _SPI_write_buf:
+      00008E 88               [ 1]  190 	push	a
+                                    191 ;	../../stm8/se8r01.c: 36: CSN_L();
+      00008F AE 50 0A         [ 2]  192 	ldw	x, #0x500a
+      000092 F6               [ 1]  193 	ld	a, (x)
+      000093 A4 EF            [ 1]  194 	and	a, #0xef
+      000095 F7               [ 1]  195 	ld	(x), a
+                                    196 ;	../../stm8/se8r01.c: 37: status = SPI_write_read_bit(reg);
+      000096 7B 04            [ 1]  197 	ld	a, (0x04, sp)
+      000098 88               [ 1]  198 	push	a
+      000099 CDr00r00         [ 4]  199 	call	_SPI_write_read_bit
+      00009C 5B 01            [ 2]  200 	addw	sp, #1
+      00009E 6B 01            [ 1]  201 	ld	(0x01, sp), a
+                                    202 ;	../../stm8/se8r01.c: 38: for (uint8_t i=0; i<bytes; i++) {
+      0000A0 4F               [ 1]  203 	clr	a
+      0000A1                        204 00103$:
+      0000A1 11 07            [ 1]  205 	cp	a, (0x07, sp)
+      0000A3 24 13            [ 1]  206 	jrnc	00101$
+                                    207 ;	../../stm8/se8r01.c: 39: SPI_write_read_bit(pBuf[i]);
+      0000A5 5F               [ 1]  208 	clrw	x
+      0000A6 97               [ 1]  209 	ld	xl, a
+      0000A7 72 FB 05         [ 2]  210 	addw	x, (0x05, sp)
+      0000AA 88               [ 1]  211 	push	a
+      0000AB F6               [ 1]  212 	ld	a, (x)
+      0000AC 97               [ 1]  213 	ld	xl, a
+      0000AD 89               [ 2]  214 	pushw	x
+      0000AE 5B 01            [ 2]  215 	addw	sp, #1
+      0000B0 CDr00r00         [ 4]  216 	call	_SPI_write_read_bit
+      0000B3 84               [ 1]  217 	pop	a
+      0000B4 84               [ 1]  218 	pop	a
+                                    219 ;	../../stm8/se8r01.c: 38: for (uint8_t i=0; i<bytes; i++) {
+      0000B5 4C               [ 1]  220 	inc	a
+      0000B6 20 E9            [ 2]  221 	jra	00103$
+      0000B8                        222 00101$:
+                                    223 ;	../../stm8/se8r01.c: 41: CSN_H();
+      0000B8 AE 50 0A         [ 2]  224 	ldw	x, #0x500a
+      0000BB F6               [ 1]  225 	ld	a, (x)
+      0000BC AA 10            [ 1]  226 	or	a, #0x10
+      0000BE F7               [ 1]  227 	ld	(x), a
+                                    228 ;	../../stm8/se8r01.c: 42: return status;
+      0000BF 7B 01            [ 1]  229 	ld	a, (0x01, sp)
+      0000C1 5B 01            [ 2]  230 	addw	sp, #1
+      0000C3 81               [ 4]  231 	ret
+                                    232 ;	../../stm8/se8r01.c: 45: uint8_t SPI_read_buf(uint8_t reg, uint8_t *pBuf, uint8_t bytes) {
+                                    233 ;	-----------------------------------------
+                                    234 ;	 function SPI_read_buf
+                                    235 ;	-----------------------------------------
+      0000C4                        236 _SPI_read_buf:
+      0000C4 52 02            [ 2]  237 	sub	sp, #2
+                                    238 ;	../../stm8/se8r01.c: 47: CSN_L();
+      0000C6 AE 50 0A         [ 2]  239 	ldw	x, #0x500a
+      0000C9 F6               [ 1]  240 	ld	a, (x)
+      0000CA A4 EF            [ 1]  241 	and	a, #0xef
+      0000CC F7               [ 1]  242 	ld	(x), a
+                                    243 ;	../../stm8/se8r01.c: 48: status = SPI_write_read_bit(reg); 
+      0000CD 7B 05            [ 1]  244 	ld	a, (0x05, sp)
+      0000CF 88               [ 1]  245 	push	a
+      0000D0 CDr00r00         [ 4]  246 	call	_SPI_write_read_bit
+      0000D3 5B 01            [ 2]  247 	addw	sp, #1
+      0000D5 6B 01            [ 1]  248 	ld	(0x01, sp), a
+                                    249 ;	../../stm8/se8r01.c: 49: for(uint8_t i=0; i<bytes; i++) {
+      0000D7 4F               [ 1]  250 	clr	a
+      0000D8                        251 00103$:
+      0000D8 11 08            [ 1]  252 	cp	a, (0x08, sp)
+      0000DA 24 18            [ 1]  253 	jrnc	00101$
+                                    254 ;	../../stm8/se8r01.c: 50: pBuf[i] = SPI_write_read_bit(0xff);
+      0000DC 5F               [ 1]  255 	clrw	x
+      0000DD 97               [ 1]  256 	ld	xl, a
+      0000DE 72 FB 06         [ 2]  257 	addw	x, (0x06, sp)
+      0000E1 88               [ 1]  258 	push	a
+      0000E2 89               [ 2]  259 	pushw	x
+      0000E3 4B FF            [ 1]  260 	push	#0xff
+      0000E5 CDr00r00         [ 4]  261 	call	_SPI_write_read_bit
+      0000E8 5B 01            [ 2]  262 	addw	sp, #1
+      0000EA 6B 05            [ 1]  263 	ld	(0x05, sp), a
+      0000EC 85               [ 2]  264 	popw	x
+      0000ED 7B 03            [ 1]  265 	ld	a, (0x03, sp)
+      0000EF F7               [ 1]  266 	ld	(x), a
+      0000F0 84               [ 1]  267 	pop	a
+                                    268 ;	../../stm8/se8r01.c: 49: for(uint8_t i=0; i<bytes; i++) {
+      0000F1 4C               [ 1]  269 	inc	a
+      0000F2 20 E4            [ 2]  270 	jra	00103$
+      0000F4                        271 00101$:
+                                    272 ;	../../stm8/se8r01.c: 52: CSN_H();
+      0000F4 AE 50 0A         [ 2]  273 	ldw	x, #0x500a
+      0000F7 F6               [ 1]  274 	ld	a, (x)
+      0000F8 AA 10            [ 1]  275 	or	a, #0x10
+      0000FA F7               [ 1]  276 	ld	(x), a
+                                    277 ;	../../stm8/se8r01.c: 53: return status;
+      0000FB 7B 01            [ 1]  278 	ld	a, (0x01, sp)
+      0000FD 5B 02            [ 2]  279 	addw	sp, #2
+      0000FF 81               [ 4]  280 	ret
+                                    281 ;	../../stm8/se8r01.c: 57: void se8r01_init(uint8_t mode) {
+                                    282 ;	-----------------------------------------
+                                    283 ;	 function se8r01_init
+                                    284 ;	-----------------------------------------
+      000100                        285 _se8r01_init:
+      000100 52 04            [ 2]  286 	sub	sp, #4
+                                    287 ;	../../stm8/se8r01.c: 59: printf("Initializing SPI\n");
+      000102 AEr06r9C         [ 2]  288 	ldw	x, #___str_0+0
+      000105 89               [ 2]  289 	pushw	x
+      000106 CDr00r00         [ 4]  290 	call	_printf
+      000109 5B 02            [ 2]  291 	addw	sp, #2
+                                    292 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      00010B 5F               [ 1]  293 	clrw	x
+      00010C 4F               [ 1]  294 	clr	a
+      00010D 0F 01            [ 1]  295 	clr	(0x01, sp)
+      00010F                        296 00109$:
+      00010F 88               [ 1]  297 	push	a
+      000110 A3 2B 5C         [ 2]  298 	cpw	x, #0x2b5c
+      000113 7B 01            [ 1]  299 	ld	a, (1, sp)
+      000115 A2 00            [ 1]  300 	sbc	a, #0x00
+      000117 7B 02            [ 1]  301 	ld	a, (0x02, sp)
+      000119 A2 00            [ 1]  302 	sbc	a, #0x00
+      00011B 84               [ 1]  303 	pop	a
+      00011C 24 12            [ 1]  304 	jrnc	00105$
+                                    305 ;	../../stm8/delay.h: 13: __asm__("nop");
+      00011E 9D               [ 1]  306 	nop
+                                    307 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      00011F 1C 00 01         [ 2]  308 	addw	x, #0x0001
+      000122 A9 00            [ 1]  309 	adc	a, #0x00
+      000124 90 97            [ 1]  310 	ld	yl, a
+      000126 7B 01            [ 1]  311 	ld	a, (0x01, sp)
+      000128 A9 00            [ 1]  312 	adc	a, #0x00
+      00012A 6B 01            [ 1]  313 	ld	(0x01, sp), a
+      00012C 90 9F            [ 1]  314 	ld	a, yl
+      00012E 20 DF            [ 2]  315 	jra	00109$
+                                    316 ;	../../stm8/se8r01.c: 61: delay_ms(100);
+      000130                        317 00105$:
+                                    318 ;	../../stm8/se8r01.c: 62: init_bit(); //bit bashing SPI
+      000130 CDr00r00         [ 4]  319 	call	_init_bit
+                                    320 ;	../../stm8/se8r01.c: 63: init_io();
+      000133 CDr02r62         [ 4]  321 	call	_init_io
+                                    322 ;	../../stm8/se8r01.c: 64: printf("Status: %02x \n", se8r01_get_status());
+      000136 CDr02r58         [ 4]  323 	call	_se8r01_get_status
+      000139 5F               [ 1]  324 	clrw	x
+      00013A 97               [ 1]  325 	ld	xl, a
+      00013B 90 AEr06rAE      [ 2]  326 	ldw	y, #___str_1+0
+      00013F 89               [ 2]  327 	pushw	x
+      000140 90 89            [ 2]  328 	pushw	y
+      000142 CDr00r00         [ 4]  329 	call	_printf
+      000145 5B 04            [ 2]  330 	addw	sp, #4
+                                    331 ;	../../stm8/se8r01.c: 66: CE_L();
+      000147 AE 50 0A         [ 2]  332 	ldw	x, #0x500a
+      00014A F6               [ 1]  333 	ld	a, (x)
+      00014B A4 F7            [ 1]  334 	and	a, #0xf7
+      00014D F7               [ 1]  335 	ld	(x), a
+                                    336 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      00014E 90 5F            [ 1]  337 	clrw	y
+      000150 5F               [ 1]  338 	clrw	x
+      000151                        339 00112$:
+      000151 90 A3 04 56      [ 2]  340 	cpw	y, #0x0456
+      000155 9F               [ 1]  341 	ld	a, xl
+      000156 A2 00            [ 1]  342 	sbc	a, #0x00
+      000158 9E               [ 1]  343 	ld	a, xh
+      000159 A2 00            [ 1]  344 	sbc	a, #0x00
+      00015B 24 08            [ 1]  345 	jrnc	00107$
+                                    346 ;	../../stm8/delay.h: 13: __asm__("nop");
+      00015D 9D               [ 1]  347 	nop
+                                    348 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      00015E 90 5C            [ 1]  349 	incw	y
+      000160 26 EF            [ 1]  350 	jrne	00112$
+      000162 5C               [ 1]  351 	incw	x
+      000163 20 EC            [ 2]  352 	jra	00112$
+                                    353 ;	../../stm8/se8r01.c: 67: delay_ms(10);
+      000165                        354 00107$:
+                                    355 ;	../../stm8/se8r01.c: 68: se8r01_powerup();
+      000165 CDr03r03         [ 4]  356 	call	_se8r01_powerup
+                                    357 ;	../../stm8/se8r01.c: 69: se8r01_calibration();
+      000168 CDr03r2E         [ 4]  358 	call	_se8r01_calibration
+                                    359 ;	../../stm8/se8r01.c: 70: se8r01_setup();
+      00016B CDr04rC7         [ 4]  360 	call	_se8r01_setup
+                                    361 ;	../../stm8/se8r01.c: 71: se8r01_settings();
+      00016E CDr06r14         [ 4]  362 	call	_se8r01_settings
+                                    363 ;	../../stm8/se8r01.c: 72: if (mode == 'r') { //rx mode
+      000171 7B 07            [ 1]  364 	ld	a, (0x07, sp)
+      000173 A1 72            [ 1]  365 	cp	a, #0x72
+      000175 26 14            [ 1]  366 	jrne	00102$
+                                    367 ;	../../stm8/se8r01.c: 73: printf("RX mode\n"); 
+      000177 AEr06rBD         [ 2]  368 	ldw	x, #___str_2+0
+      00017A 89               [ 2]  369 	pushw	x
+      00017B CDr00r00         [ 4]  370 	call	_printf
+      00017E 5B 02            [ 2]  371 	addw	sp, #2
+                                    372 ;	../../stm8/se8r01.c: 74: SPI_write_read_reg(WRITE_REG | iRF_BANK0_CONFIG, 0x3f);
+      000180 4B 3F            [ 1]  373 	push	#0x3f
+      000182 4B 20            [ 1]  374 	push	#0x20
+      000184 CDr00r69         [ 4]  375 	call	_SPI_write_read_reg
+      000187 5B 02            [ 2]  376 	addw	sp, #2
+      000189 20 2E            [ 2]  377 	jra	00103$
+      00018B                        378 00102$:
+                                    379 ;	../../stm8/se8r01.c: 77: SPI_write_read_reg(WRITE_REG | iRF_BANK0_CONFIG, 0x3e)
+      00018B 4B 3E            [ 1]  380 	push	#0x3e
+      00018D 4B 20            [ 1]  381 	push	#0x20
+      00018F CDr00r69         [ 4]  382 	call	_SPI_write_read_reg
+      000192 5B 02            [ 2]  383 	addw	sp, #2
+      000194 5F               [ 1]  384 	clrw	x
+      000195 97               [ 1]  385 	ld	xl, a
+                                    386 ;	../../stm8/se8r01.c: 76: printf("TX mode, status %02x\n",
+      000196 90 AEr06rC6      [ 2]  387 	ldw	y, #___str_3+0
+      00019A 89               [ 2]  388 	pushw	x
+      00019B 90 89            [ 2]  389 	pushw	y
+      00019D CDr00r00         [ 4]  390 	call	_printf
+      0001A0 5B 04            [ 2]  391 	addw	sp, #4
+                                    392 ;	../../stm8/se8r01.c: 79: printf("connected? %02x\n", SPI_write_read_reg(SETUP_AW, 0xff));
+      0001A2 4B FF            [ 1]  393 	push	#0xff
+      0001A4 4B 03            [ 1]  394 	push	#0x03
+      0001A6 CDr00r69         [ 4]  395 	call	_SPI_write_read_reg
+      0001A9 5B 02            [ 2]  396 	addw	sp, #2
+      0001AB 5F               [ 1]  397 	clrw	x
+      0001AC 97               [ 1]  398 	ld	xl, a
+      0001AD 90 AEr06rDC      [ 2]  399 	ldw	y, #___str_4+0
+      0001B1 89               [ 2]  400 	pushw	x
+      0001B2 90 89            [ 2]  401 	pushw	y
+      0001B4 CDr00r00         [ 4]  402 	call	_printf
+      0001B7 5B 04            [ 2]  403 	addw	sp, #4
+      0001B9                        404 00103$:
+                                    405 ;	../../stm8/se8r01.c: 81: CE_H();
+      0001B9 AE 50 0A         [ 2]  406 	ldw	x, #0x500a
+      0001BC F6               [ 1]  407 	ld	a, (x)
+      0001BD AA 08            [ 1]  408 	or	a, #0x08
+      0001BF F7               [ 1]  409 	ld	(x), a
+      0001C0 5B 04            [ 2]  410 	addw	sp, #4
+      0001C2 81               [ 4]  411 	ret
+                                    412 ;	../../stm8/se8r01.c: 84: uint8_t se8r01_wait_rx(uint8_t *rx_buf) {
+                                    413 ;	-----------------------------------------
+                                    414 ;	 function se8r01_wait_rx
+                                    415 ;	-----------------------------------------
+      0001C3                        416 _se8r01_wait_rx:
+                                    417 ;	../../stm8/se8r01.c: 87: while (PB_IDR & (1<<IRQ_PIN));
+      0001C3                        418 00101$:
+      0001C3 AE 50 06         [ 2]  419 	ldw	x, #0x5006
+      0001C6 F6               [ 1]  420 	ld	a, (x)
+      0001C7 A5 20            [ 1]  421 	bcp	a, #0x20
+      0001C9 26 F8            [ 1]  422 	jrne	00101$
+                                    423 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      0001CB 90 5F            [ 1]  424 	clrw	y
+      0001CD 5F               [ 1]  425 	clrw	x
+      0001CE                        426 00110$:
+      0001CE 90 A3 00 6F      [ 2]  427 	cpw	y, #0x006f
+      0001D2 9F               [ 1]  428 	ld	a, xl
+      0001D3 A2 00            [ 1]  429 	sbc	a, #0x00
+      0001D5 9E               [ 1]  430 	ld	a, xh
+      0001D6 A2 00            [ 1]  431 	sbc	a, #0x00
+      0001D8 24 08            [ 1]  432 	jrnc	00108$
+                                    433 ;	../../stm8/delay.h: 13: __asm__("nop");
+      0001DA 9D               [ 1]  434 	nop
+                                    435 ;	../../stm8/delay.h: 12: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000UL) * ms); i++) {
+      0001DB 90 5C            [ 1]  436 	incw	y
+      0001DD 26 EF            [ 1]  437 	jrne	00110$
+      0001DF 5C               [ 1]  438 	incw	x
+      0001E0 20 EC            [ 2]  439 	jra	00110$
+                                    440 ;	../../stm8/se8r01.c: 88: delay_ms(1);
+      0001E2                        441 00108$:
+                                    442 ;	../../stm8/se8r01.c: 89: status = se8r01_get_status();  
+      0001E2 CDr02r58         [ 4]  443 	call	_se8r01_get_status
+                                    444 ;	../../stm8/se8r01.c: 90: if (status & STA_MARK_RX) {
+      0001E5 A5 40            [ 1]  445 	bcp	a, #0x40
+      0001E7 27 1B            [ 1]  446 	jreq	00105$
+                                    447 ;	../../stm8/se8r01.c: 91: SPI_read_buf(RD_RX_PLOAD, rx_buf, TX_PLOAD_WIDTH);
+      0001E9 4B 06            [ 1]  448 	push	#0x06
+      0001EB 1E 04            [ 2]  449 	ldw	x, (0x04, sp)
+      0001ED 89               [ 2]  450 	pushw	x
+      0001EE 4B 61            [ 1]  451 	push	#0x61
+      0001F0 CDr00rC4         [ 4]  452 	call	_SPI_read_buf
+      0001F3 5B 04            [ 2]  453 	addw	sp, #4
+                                    454 ;	../../stm8/se8r01.c: 92: se8r01_flush_RX();
+      0001F5 CDr06r92         [ 4]  455 	call	_se8r01_flush_RX
+                                    456 ;	../../stm8/se8r01.c: 93: SPI_write_read_reg(WRITE_REG|STATUS, 0xff);//  ,0xff);
+      0001F8 4B FF            [ 1]  457 	push	#0xff
+      0001FA 4B 27            [ 1]  458 	push	#0x27
+      0001FC CDr00r69         [ 4]  459 	call	_SPI_write_read_reg
+      0001FF 5B 02            [ 2]  460 	addw	sp, #2
+                                    461 ;	../../stm8/se8r01.c: 94: return 1;
+      000201 A6 01            [ 1]  462 	ld	a, #0x01
+      000203 81               [ 4]  463 	ret
+      000204                        464 00105$:
+                                    465 ;	../../stm8/se8r01.c: 96: SPI_write_read_reg(WRITE_REG|STATUS, 0xff);
+      000204 4B FF            [ 1]  466 	push	#0xff
+      000206 4B 27            [ 1]  467 	push	#0x27
+      000208 CDr00r69         [ 4]  468 	call	_SPI_write_read_reg
+      00020B 5B 02            [ 2]  469 	addw	sp, #2
+                                    470 ;	../../stm8/se8r01.c: 97: return 0;
+      00020D 4F               [ 1]  471 	clr	a
+      00020E 81               [ 4]  472 	ret
+                                    473 ;	../../stm8/se8r01.c: 104: void se8r01_tx(uint8_t *tx_buf) {
+                                    474 ;	-----------------------------------------
+                                    475 ;	 function se8r01_tx
+                                    476 ;	-----------------------------------------
+      00020F                        477 _se8r01_tx:
+      00020F 88               [ 1]  478 	push	a
+                                    479 ;	../../stm8/se8r01.c: 107: status = se8r01_get_status();
+      000210 CDr02r58         [ 4]  480 	call	_se8r01_get_status
+      000213 6B 01            [ 1]  481 	ld	(0x01, sp), a
+                                    482 ;	../../stm8/se8r01.c: 109: PD_ODR |= (1<<4);
+      000215 AE 50 0F         [ 2]  483 	ldw	x, #0x500f
+      000218 F6               [ 1]  484 	ld	a, (x)
+                                    485 ;	../../stm8/se8r01.c: 108: if (status & (1<<5)) {
+      000219 88               [ 1]  486 	push	a
+      00021A 7B 02            [ 1]  487 	ld	a, (0x02, sp)
+      00021C A5 20            [ 1]  488 	bcp	a, #0x20
+      00021E 84               [ 1]  489 	pop	a
+      00021F 27 08            [ 1]  490 	jreq	00102$
+                                    491 ;	../../stm8/se8r01.c: 109: PD_ODR |= (1<<4);
+      000221 AA 10            [ 1]  492 	or	a, #0x10
+      000223 AE 50 0F         [ 2]  493 	ldw	x, #0x500f
+      000226 F7               [ 1]  494 	ld	(x), a
+      000227 20 06            [ 2]  495 	jra	00103$
+      000229                        496 00102$:
+                                    497 ;	../../stm8/se8r01.c: 111: PD_ODR &= ~(1<<4);
+      000229 A4 EF            [ 1]  498 	and	a, #0xef
+      00022B AE 50 0F         [ 2]  499 	ldw	x, #0x500f
+      00022E F7               [ 1]  500 	ld	(x), a
+      00022F                        501 00103$:
+                                    502 ;	../../stm8/se8r01.c: 113: se8r01_flush_TX();
+      00022F CDr06r88         [ 4]  503 	call	_se8r01_flush_TX
+                                    504 ;	../../stm8/se8r01.c: 114: SPI_write_buf(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);
+      000232 4B 06            [ 1]  505 	push	#0x06
+      000234 1E 05            [ 2]  506 	ldw	x, (0x05, sp)
+      000236 89               [ 2]  507 	pushw	x
+      000237 4B A0            [ 1]  508 	push	#0xa0
+      000239 CDr00r8E         [ 4]  509 	call	_SPI_write_buf
+      00023C 5B 04            [ 2]  510 	addw	sp, #4
+                                    511 ;	../../stm8/se8r01.c: 115: SPI_write_read_reg(WRITE_REG+STATUS, 0xff);
+      00023E 4B FF            [ 1]  512 	push	#0xff
+      000240 4B 27            [ 1]  513 	push	#0x27
+      000242 CDr00r69         [ 4]  514 	call	_SPI_write_read_reg
+      000245 5B 02            [ 2]  515 	addw	sp, #2
+                                    516 ;	../../stm8/se8r01.c: 116: printf("Status: %02x \n", status);
+      000247 5F               [ 1]  517 	clrw	x
+      000248 7B 01            [ 1]  518 	ld	a, (0x01, sp)
+      00024A 97               [ 1]  519 	ld	xl, a
+      00024B 90 AEr06rAE      [ 2]  520 	ldw	y, #___str_1+0
+      00024F 89               [ 2]  521 	pushw	x
+      000250 90 89            [ 2]  522 	pushw	y
+      000252 CDr00r00         [ 4]  523 	call	_printf
+      000255 5B 05            [ 2]  524 	addw	sp, #5
+      000257 81               [ 4]  525 	ret
+                                    526 ;	../../stm8/se8r01.c: 119: uint8_t se8r01_get_status() {
+                                    527 ;	-----------------------------------------
+                                    528 ;	 function se8r01_get_status
+                                    529 ;	-----------------------------------------
+      000258                        530 _se8r01_get_status:
+                                    531 ;	../../stm8/se8r01.c: 120: return SPI_write_read_reg(STATUS, 0);
+      000258 4B 00            [ 1]  532 	push	#0x00
+      00025A 4B 07            [ 1]  533 	push	#0x07
+      00025C CDr00r69         [ 4]  534 	call	_SPI_write_read_reg
+      00025F 5B 02            [ 2]  535 	addw	sp, #2
+      000261 81               [ 4]  536 	ret
+                                    537 ;	../../stm8/se8r01.c: 123: void init_io() {
+                                    538 ;	-----------------------------------------
+                                    539 ;	 function init_io
+                                    540 ;	-----------------------------------------
+      000262                        541 _init_io:
+                                    542 ;	../../stm8/se8r01.c: 125: PB_DDR &= ~(1<<IRQ_PIN); //Input
+      000262 AE 50 07         [ 2]  543 	ldw	x, #0x5007
+      000265 F6               [ 1]  544 	ld	a, (x)
+      000266 A4 DF            [ 1]  545 	and	a, #0xdf
+      000268 F7               [ 1]  546 	ld	(x), a
+                                    547 ;	../../stm8/se8r01.c: 126: PB_CR1 &= ~(1<<IRQ_PIN); //No pull-up
+      000269 AE 50 08         [ 2]  548 	ldw	x, #0x5008
+      00026C F6               [ 1]  549 	ld	a, (x)
+      00026D A4 DF            [ 1]  550 	and	a, #0xdf
+      00026F F7               [ 1]  551 	ld	(x), a
+                                    552 ;	../../stm8/se8r01.c: 127: PB_CR2 &= ~(1<<IRQ_PIN); //disable externernal interupt
+      000270 AE 50 09         [ 2]  553 	ldw	x, #0x5009
+      000273 F6               [ 1]  554 	ld	a, (x)
+      000274 A4 DF            [ 1]  555 	and	a, #0xdf
+      000276 F7               [ 1]  556 	ld	(x), a
+                                    557 ;	../../stm8/se8r01.c: 130: PC_DDR |= (1<<CE_PIN); //output
+      000277 AE 50 0C         [ 2]  558 	ldw	x, #0x500c
+      00027A F6               [ 1]  559 	ld	a, (x)
+      00027B AA 08            [ 1]  560 	or	a, #0x08
+      00027D F7               [ 1]  561 	ld	(x), a
+                                    562 ;	../../stm8/se8r01.c: 131: PC_CR1 |= (1<<CE_PIN); //push-pull
+      00027E AE 50 0D         [ 2]  563 	ldw	x, #0x500d
+      000281 F6               [ 1]  564 	ld	a, (x)
+      000282 AA 08            [ 1]  565 	or	a, #0x08
+      000284 F7               [ 1]  566 	ld	(x), a
+                                    567 ;	../../stm8/se8r01.c: 132: PC_CR2 |= (1<<CE_PIN); //10Mhz speed
+      000285 AE 50 0E         [ 2]  568 	ldw	x, #0x500e
+      000288 F6               [ 1]  569 	ld	a, (x)
+      000289 AA 08            [ 1]  570 	or	a, #0x08
+      00028B F7               [ 1]  571 	ld	(x), a
+                                    572 ;	../../stm8/se8r01.c: 135: PC_DDR |= (1<<CSN_PIN); //output
+      00028C AE 50 0C         [ 2]  573 	ldw	x, #0x500c
+      00028F F6               [ 1]  574 	ld	a, (x)
+      000290 AA 10            [ 1]  575 	or	a, #0x10
+      000292 F7               [ 1]  576 	ld	(x), a
+                                    577 ;	../../stm8/se8r01.c: 136: PC_CR1 |= (1<<CSN_PIN); //push-pull
+      000293 AE 50 0D         [ 2]  578 	ldw	x, #0x500d
+      000296 F6               [ 1]  579 	ld	a, (x)
+      000297 AA 10            [ 1]  580 	or	a, #0x10
+      000299 F7               [ 1]  581 	ld	(x), a
+                                    582 ;	../../stm8/se8r01.c: 137: PC_CR2 |= (1<<CSN_PIN); //10Mhz speed
+      00029A AE 50 0E         [ 2]  583 	ldw	x, #0x500e
+      00029D F6               [ 1]  584 	ld	a, (x)
+      00029E AA 10            [ 1]  585 	or	a, #0x10
+      0002A0 F7               [ 1]  586 	ld	(x), a
+                                    587 ;	../../stm8/se8r01.c: 140: PD_DDR |= (1<<4);
+      0002A1 AE 50 11         [ 2]  588 	ldw	x, #0x5011
+      0002A4 F6               [ 1]  589 	ld	a, (x)
+      0002A5 AA 10            [ 1]  590 	or	a, #0x10
+      0002A7 F7               [ 1]  591 	ld	(x), a
+                                    592 ;	../../stm8/se8r01.c: 141: PD_CR1 |= (1<<4);
+      0002A8 AE 50 12         [ 2]  593 	ldw	x, #0x5012
+      0002AB F6               [ 1]  594 	ld	a, (x)
+      0002AC AA 10            [ 1]  595 	or	a, #0x10
+      0002AE F7               [ 1]  596 	ld	(x), a
+                                    597 ;	../../stm8/se8r01.c: 143: CSN_H(); //disable spi
+      0002AF AE 50 0A         [ 2]  598 	ldw	x, #0x500a
+      0002B2 F6               [ 1]  599 	ld	a, (x)
+      0002B3 AA 10            [ 1]  600 	or	a, #0x10
+      0002B5 F7               [ 1]  601 	ld	(x), a
+                                    602 ;	../../stm8/se8r01.c: 144: CE_L(); //power down at startup
+      0002B6 AE 50 0A         [ 2]  603 	ldw	x, #0x500a
+      0002B9 F6               [ 1]  604 	ld	a, (x)
+      0002BA A4 F7            [ 1]  605 	and	a, #0xf7
+      0002BC F7               [ 1]  606 	ld	(x), a
+      0002BD 81               [ 4]  607 	ret
+                                    608 ;	../../stm8/se8r01.c: 147: void clear_IRQ_flags() {
+                                    609 ;	-----------------------------------------
+                                    610 ;	 function clear_IRQ_flags
+                                    611 ;	-----------------------------------------
+      0002BE                        612 _clear_IRQ_flags:
+                                    613 ;	../../stm8/se8r01.c: 150: status = se8r01_get_status();
+      0002BE CDr02r58         [ 4]  614 	call	_se8r01_get_status
+                                    615 ;	../../stm8/se8r01.c: 151: SPI_write_read_reg(STATUS, status|0x70);
+      0002C1 AA 70            [ 1]  616 	or	a, #0x70
+      0002C3 88               [ 1]  617 	push	a
+      0002C4 4B 07            [ 1]  618 	push	#0x07
+      0002C6 CDr00r69         [ 4]  619 	call	_SPI_write_read_reg
+      0002C9 5B 02            [ 2]  620 	addw	sp, #2
+                                    621 ;	../../stm8/se8r01.c: 152: printf("clearing irq flag\n");
+      0002CB AEr06rED         [ 2]  622 	ldw	x, #___str_5+0
+      0002CE 89               [ 2]  623 	pushw	x
+      0002CF CDr00r00         [ 4]  624 	call	_printf
+      0002D2 5B 02            [ 2]  625 	addw	sp, #2
+      0002D4 81               [ 4]  626 	ret
+                                    627 ;	../../stm8/se8r01.c: 155: void rf_switch_bank(uint8_t bankindex)
+                                    628 ;	-----------------------------------------
+                                    629 ;	 function rf_switch_bank
+                                    630 ;	-----------------------------------------
+      0002D5                        631 _rf_switch_bank:
+      0002D5 52 02            [ 2]  632 	sub	sp, #2
+                                    633 ;	../../stm8/se8r01.c: 159: temp0 = SPI_write_read_bit(iRF_BANK0_STATUS);
+      0002D7 4B 07            [ 1]  634 	push	#0x07
+      0002D9 CDr00r00         [ 4]  635 	call	_SPI_write_read_bit
+      0002DC 5B 01            [ 2]  636 	addw	sp, #1
+                                    637 ;	../../stm8/se8r01.c: 160: printf("Temp 0: %02x \n", temp0);
+      0002DE 6B 02            [ 1]  638 	ld	(0x02, sp), a
+      0002E0 0F 01            [ 1]  639 	clr	(0x01, sp)
+      0002E2 AEr07r00         [ 2]  640 	ldw	x, #___str_6+0
+      0002E5 88               [ 1]  641 	push	a
+      0002E6 16 02            [ 2]  642 	ldw	y, (0x02, sp)
+      0002E8 90 89            [ 2]  643 	pushw	y
+      0002EA 89               [ 2]  644 	pushw	x
+      0002EB CDr00r00         [ 4]  645 	call	_printf
+      0002EE 5B 04            [ 2]  646 	addw	sp, #4
+      0002F0 84               [ 1]  647 	pop	a
+                                    648 ;	../../stm8/se8r01.c: 161: if((temp0 & 0x80) != bankindex)
+      0002F1 A4 80            [ 1]  649 	and	a, #0x80
+      0002F3 11 05            [ 1]  650 	cp	a, (0x05, sp)
+      0002F5 27 09            [ 1]  651 	jreq	00103$
+                                    652 ;	../../stm8/se8r01.c: 163: SPI_write_read_reg(iRF_CMD_ACTIVATE,0x53);
+      0002F7 4B 53            [ 1]  653 	push	#0x53
+      0002F9 4B 50            [ 1]  654 	push	#0x50
+      0002FB CDr00r69         [ 4]  655 	call	_SPI_write_read_reg
+      0002FE 5B 02            [ 2]  656 	addw	sp, #2
+      000300                        657 00103$:
+      000300 5B 02            [ 2]  658 	addw	sp, #2
+      000302 81               [ 4]  659 	ret
+                                    660 ;	../../stm8/se8r01.c: 167: void se8r01_powerup()
+                                    661 ;	-----------------------------------------
+                                    662 ;	 function se8r01_powerup
+                                    663 ;	-----------------------------------------
+      000303                        664 _se8r01_powerup:
+                                    665 ;	../../stm8/se8r01.c: 169: rf_switch_bank(iBANK0);
+      000303 4B 00            [ 1]  666 	push	#0x00
+      000305 CDr02rD5         [ 4]  667 	call	_rf_switch_bank
+      000308 84               [ 1]  668 	pop	a
+                                    669 ;	../../stm8/se8r01.c: 170: SPI_write_read_reg(iRF_CMD_WRITE_REG|iRF_BANK0_CONFIG,0x03);
+      000309 4B 03            [ 1]  670 	push	#0x03
+      00030B 4B 20            [ 1]  671 	push	#0x20
+      00030D CDr00r69         [ 4]  672 	call	_SPI_write_read_reg
+      000310 5B 02            [ 2]  673 	addw	sp, #2
+                                    674 ;	../../stm8/se8r01.c: 171: SPI_write_read_reg(iRF_CMD_WRITE_REG|iRF_BANK0_RF_CH,0x32);
+      000312 4B 32            [ 1]  675 	push	#0x32
+      000314 4B 25            [ 1]  676 	push	#0x25
+      000316 CDr00r69         [ 4]  677 	call	_SPI_write_read_reg
+      000319 5B 02            [ 2]  678 	addw	sp, #2
+                                    679 ;	../../stm8/se8r01.c: 172: SPI_write_read_reg(iRF_CMD_WRITE_REG|iRF_BANK0_RF_SETUP,0x48);
+      00031B 4B 48            [ 1]  680 	push	#0x48
+      00031D 4B 26            [ 1]  681 	push	#0x26
+      00031F CDr00r69         [ 4]  682 	call	_SPI_write_read_reg
+      000322 5B 02            [ 2]  683 	addw	sp, #2
+                                    684 ;	../../stm8/se8r01.c: 173: SPI_write_read_reg(iRF_CMD_WRITE_REG|iRF_BANK0_PRE_GURD,0x77); //2450 calibration
+      000324 4B 77            [ 1]  685 	push	#0x77
+      000326 4B 3F            [ 1]  686 	push	#0x3f
+      000328 CDr00r69         [ 4]  687 	call	_SPI_write_read_reg
+      00032B 5B 02            [ 2]  688 	addw	sp, #2
+      00032D 81               [ 4]  689 	ret
+                                    690 ;	../../stm8/se8r01.c: 177: void se8r01_calibration()
+                                    691 ;	-----------------------------------------
+                                    692 ;	 function se8r01_calibration
+                                    693 ;	-----------------------------------------
+      00032E                        694 _se8r01_calibration:
+      00032E 52 11            [ 2]  695 	sub	sp, #17
+                                    696 ;	../../stm8/se8r01.c: 182: rf_switch_bank(iBANK1);
+      000330 4B 80            [ 1]  697 	push	#0x80
+      000332 CDr02rD5         [ 4]  698 	call	_rf_switch_bank
+      000335 84               [ 1]  699 	pop	a
+                                    700 ;	../../stm8/se8r01.c: 184: gtemp[0]=0x40;
+      000336 96               [ 1]  701 	ldw	x, sp
+      000337 1C 00 05         [ 2]  702 	addw	x, #5
+      00033A 1F 0A            [ 2]  703 	ldw	(0x0a, sp), x
+      00033C A6 40            [ 1]  704 	ld	a, #0x40
+      00033E F7               [ 1]  705 	ld	(x), a
+                                    706 ;	../../stm8/se8r01.c: 185: gtemp[1]=0x00;
+      00033F 1E 0A            [ 2]  707 	ldw	x, (0x0a, sp)
+      000341 5C               [ 1]  708 	incw	x
+      000342 1F 0C            [ 2]  709 	ldw	(0x0c, sp), x
+      000344 7F               [ 1]  710 	clr	(x)
+                                    711 ;	../../stm8/se8r01.c: 186: gtemp[2]=0x10;
+      000345 1E 0A            [ 2]  712 	ldw	x, (0x0a, sp)
+      000347 5C               [ 1]  713 	incw	x
+      000348 5C               [ 1]  714 	incw	x
+      000349 1F 10            [ 2]  715 	ldw	(0x10, sp), x
+      00034B A6 10            [ 1]  716 	ld	a, #0x10
+      00034D F7               [ 1]  717 	ld	(x), a
+                                    718 ;	../../stm8/se8r01.c: 187: gtemp[3]=0xE6;
+      00034E 1E 0A            [ 2]  719 	ldw	x, (0x0a, sp)
+      000350 1C 00 03         [ 2]  720 	addw	x, #0x0003
+      000353 1F 0E            [ 2]  721 	ldw	(0x0e, sp), x
+      000355 A6 E6            [ 1]  722 	ld	a, #0xe6
+      000357 F7               [ 1]  723 	ld	(x), a
+                                    724 ;	../../stm8/se8r01.c: 188: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_PLL_CTL0, gtemp, 4);
+      000358 1E 0A            [ 2]  725 	ldw	x, (0x0a, sp)
+      00035A 4B 04            [ 1]  726 	push	#0x04
+      00035C 89               [ 2]  727 	pushw	x
+      00035D 4B 21            [ 1]  728 	push	#0x21
+      00035F CDr00r8E         [ 4]  729 	call	_SPI_write_buf
+      000362 5B 04            [ 2]  730 	addw	sp, #4
+                                    731 ;	../../stm8/se8r01.c: 190: gtemp[0]=0x20;
+      000364 1E 0A            [ 2]  732 	ldw	x, (0x0a, sp)
+      000366 A6 20            [ 1]  733 	ld	a, #0x20
+      000368 F7               [ 1]  734 	ld	(x), a
+                                    735 ;	../../stm8/se8r01.c: 191: gtemp[1]=0x08;
+      000369 1E 0C            [ 2]  736 	ldw	x, (0x0c, sp)
+      00036B A6 08            [ 1]  737 	ld	a, #0x08
+      00036D F7               [ 1]  738 	ld	(x), a
+                                    739 ;	../../stm8/se8r01.c: 192: gtemp[2]=0x50;
+      00036E 1E 10            [ 2]  740 	ldw	x, (0x10, sp)
+      000370 A6 50            [ 1]  741 	ld	a, #0x50
+      000372 F7               [ 1]  742 	ld	(x), a
+                                    743 ;	../../stm8/se8r01.c: 193: gtemp[3]=0x40;
+      000373 1E 0E            [ 2]  744 	ldw	x, (0x0e, sp)
+      000375 A6 40            [ 1]  745 	ld	a, #0x40
+      000377 F7               [ 1]  746 	ld	(x), a
+                                    747 ;	../../stm8/se8r01.c: 194: gtemp[4]=0x50;
+      000378 1E 0A            [ 2]  748 	ldw	x, (0x0a, sp)
+      00037A A6 50            [ 1]  749 	ld	a, #0x50
+      00037C E7 04            [ 1]  750 	ld	(0x0004, x), a
+                                    751 ;	../../stm8/se8r01.c: 195: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_CAL_CTL, gtemp, 5);
+      00037E 1E 0A            [ 2]  752 	ldw	x, (0x0a, sp)
+      000380 4B 05            [ 1]  753 	push	#0x05
+      000382 89               [ 2]  754 	pushw	x
+      000383 4B 23            [ 1]  755 	push	#0x23
+      000385 CDr00r8E         [ 4]  756 	call	_SPI_write_buf
+      000388 5B 04            [ 2]  757 	addw	sp, #4
+                                    758 ;	../../stm8/se8r01.c: 197: gtemp[0]=0x00;
+      00038A 1E 0A            [ 2]  759 	ldw	x, (0x0a, sp)
+      00038C 7F               [ 1]  760 	clr	(x)
+                                    761 ;	../../stm8/se8r01.c: 198: gtemp[1]=0x00;
+      00038D 1E 0C            [ 2]  762 	ldw	x, (0x0c, sp)
+      00038F 7F               [ 1]  763 	clr	(x)
+                                    764 ;	../../stm8/se8r01.c: 199: gtemp[2]=0x1E;
+      000390 1E 10            [ 2]  765 	ldw	x, (0x10, sp)
+      000392 A6 1E            [ 1]  766 	ld	a, #0x1e
+      000394 F7               [ 1]  767 	ld	(x), a
+                                    768 ;	../../stm8/se8r01.c: 200: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_IF_FREQ, gtemp, 3);
+      000395 1E 0A            [ 2]  769 	ldw	x, (0x0a, sp)
+      000397 4B 03            [ 1]  770 	push	#0x03
+      000399 89               [ 2]  771 	pushw	x
+      00039A 4B 2A            [ 1]  772 	push	#0x2a
+      00039C CDr00r8E         [ 4]  773 	call	_SPI_write_buf
+      00039F 5B 04            [ 2]  774 	addw	sp, #4
+                                    775 ;	../../stm8/se8r01.c: 202: gtemp[0]=0x29;
+      0003A1 1E 0A            [ 2]  776 	ldw	x, (0x0a, sp)
+      0003A3 A6 29            [ 1]  777 	ld	a, #0x29
+      0003A5 F7               [ 1]  778 	ld	(x), a
+                                    779 ;	../../stm8/se8r01.c: 203: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_FDEV, gtemp, 1);
+      0003A6 1E 0A            [ 2]  780 	ldw	x, (0x0a, sp)
+      0003A8 4B 01            [ 1]  781 	push	#0x01
+      0003AA 89               [ 2]  782 	pushw	x
+      0003AB 4B 2C            [ 1]  783 	push	#0x2c
+      0003AD CDr00r8E         [ 4]  784 	call	_SPI_write_buf
+      0003B0 5B 04            [ 2]  785 	addw	sp, #4
+                                    786 ;	../../stm8/se8r01.c: 205: gtemp[0]=0x00;
+      0003B2 1E 0A            [ 2]  787 	ldw	x, (0x0a, sp)
+      0003B4 7F               [ 1]  788 	clr	(x)
+                                    789 ;	../../stm8/se8r01.c: 206: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_DAC_CAL_LOW, gtemp, 1);
+      0003B5 1E 0A            [ 2]  790 	ldw	x, (0x0a, sp)
+      0003B7 4B 01            [ 1]  791 	push	#0x01
+      0003B9 89               [ 2]  792 	pushw	x
+      0003BA 4B 37            [ 1]  793 	push	#0x37
+      0003BC CDr00r8E         [ 4]  794 	call	_SPI_write_buf
+      0003BF 5B 04            [ 2]  795 	addw	sp, #4
+                                    796 ;	../../stm8/se8r01.c: 208: gtemp[0]=0x7F;
+      0003C1 1E 0A            [ 2]  797 	ldw	x, (0x0a, sp)
+      0003C3 A6 7F            [ 1]  798 	ld	a, #0x7f
+      0003C5 F7               [ 1]  799 	ld	(x), a
+                                    800 ;	../../stm8/se8r01.c: 209: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_DAC_CAL_HI, gtemp, 1);
+      0003C6 1E 0A            [ 2]  801 	ldw	x, (0x0a, sp)
+      0003C8 4B 01            [ 1]  802 	push	#0x01
+      0003CA 89               [ 2]  803 	pushw	x
+      0003CB 4B 38            [ 1]  804 	push	#0x38
+      0003CD CDr00r8E         [ 4]  805 	call	_SPI_write_buf
+      0003D0 5B 04            [ 2]  806 	addw	sp, #4
+                                    807 ;	../../stm8/se8r01.c: 211: gtemp[0]=0x02;
+      0003D2 1E 0A            [ 2]  808 	ldw	x, (0x0a, sp)
+      0003D4 A6 02            [ 1]  809 	ld	a, #0x02
+      0003D6 F7               [ 1]  810 	ld	(x), a
+                                    811 ;	../../stm8/se8r01.c: 212: gtemp[1]=0xC1;
+      0003D7 1E 0C            [ 2]  812 	ldw	x, (0x0c, sp)
+      0003D9 A6 C1            [ 1]  813 	ld	a, #0xc1
+      0003DB F7               [ 1]  814 	ld	(x), a
+                                    815 ;	../../stm8/se8r01.c: 213: gtemp[2]=0xEB;
+      0003DC 1E 10            [ 2]  816 	ldw	x, (0x10, sp)
+      0003DE A6 EB            [ 1]  817 	ld	a, #0xeb
+      0003E0 F7               [ 1]  818 	ld	(x), a
+                                    819 ;	../../stm8/se8r01.c: 214: gtemp[3]=0x1C;
+      0003E1 1E 0E            [ 2]  820 	ldw	x, (0x0e, sp)
+      0003E3 A6 1C            [ 1]  821 	ld	a, #0x1c
+      0003E5 F7               [ 1]  822 	ld	(x), a
+                                    823 ;	../../stm8/se8r01.c: 215: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_AGC_GAIN, gtemp, 4);
+      0003E6 1E 0A            [ 2]  824 	ldw	x, (0x0a, sp)
+      0003E8 4B 04            [ 1]  825 	push	#0x04
+      0003EA 89               [ 2]  826 	pushw	x
+      0003EB 4B 3D            [ 1]  827 	push	#0x3d
+      0003ED CDr00r8E         [ 4]  828 	call	_SPI_write_buf
+      0003F0 5B 04            [ 2]  829 	addw	sp, #4
+                                    830 ;	../../stm8/se8r01.c: 217: gtemp[0]=0x97;
+      0003F2 1E 0A            [ 2]  831 	ldw	x, (0x0a, sp)
+      0003F4 A6 97            [ 1]  832 	ld	a, #0x97
+      0003F6 F7               [ 1]  833 	ld	(x), a
+                                    834 ;	../../stm8/se8r01.c: 218: gtemp[1]=0x64;
+      0003F7 1E 0C            [ 2]  835 	ldw	x, (0x0c, sp)
+      0003F9 A6 64            [ 1]  836 	ld	a, #0x64
+      0003FB F7               [ 1]  837 	ld	(x), a
+                                    838 ;	../../stm8/se8r01.c: 219: gtemp[2]=0x00;
+      0003FC 1E 10            [ 2]  839 	ldw	x, (0x10, sp)
+      0003FE 7F               [ 1]  840 	clr	(x)
+                                    841 ;	../../stm8/se8r01.c: 220: gtemp[3]=0x81;
+      0003FF 1E 0E            [ 2]  842 	ldw	x, (0x0e, sp)
+      000401 A6 81            [ 1]  843 	ld	a, #0x81
+      000403 F7               [ 1]  844 	ld	(x), a
+                                    845 ;	../../stm8/se8r01.c: 221: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_RF_IVGEN, gtemp, 4);
+      000404 1E 0A            [ 2]  846 	ldw	x, (0x0a, sp)
+      000406 4B 04            [ 1]  847 	push	#0x04
+      000408 89               [ 2]  848 	pushw	x
+      000409 4B 3E            [ 1]  849 	push	#0x3e
+      00040B CDr00r8E         [ 4]  850 	call	_SPI_write_buf
+      00040E 5B 04            [ 2]  851 	addw	sp, #4
+                                    852 ;	../../stm8/se8r01.c: 223: rf_switch_bank(iBANK0);
+      000410 4B 00            [ 1]  853 	push	#0x00
+      000412 CDr02rD5         [ 4]  854 	call	_rf_switch_bank
+      000415 84               [ 1]  855 	pop	a
+                                    856 ;	../../stm8/se8r01.c: 225: CE_H();
+      000416 AE 50 0A         [ 2]  857 	ldw	x, #0x500a
+      000419 F6               [ 1]  858 	ld	a, (x)
+      00041A AA 08            [ 1]  859 	or	a, #0x08
+      00041C F7               [ 1]  860 	ld	(x), a
+                                    861 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      00041D 5F               [ 1]  862 	clrw	x
+      00041E 4F               [ 1]  863 	clr	a
+      00041F 0F 01            [ 1]  864 	clr	(0x01, sp)
+      000421                        865 00110$:
+      000421 88               [ 1]  866 	push	a
+      000422 A3 00 00         [ 2]  867 	cpw	x, #0x0000
+      000425 7B 01            [ 1]  868 	ld	a, (1, sp)
+      000427 A2 00            [ 1]  869 	sbc	a, #0x00
+      000429 7B 02            [ 1]  870 	ld	a, (0x02, sp)
+      00042B A2 00            [ 1]  871 	sbc	a, #0x00
+      00042D 84               [ 1]  872 	pop	a
+      00042E 24 12            [ 1]  873 	jrnc	00102$
+                                    874 ;	../../stm8/delay.h: 19: __asm__("nop");
+      000430 9D               [ 1]  875 	nop
+                                    876 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000431 1C 00 01         [ 2]  877 	addw	x, #0x0001
+      000434 A9 00            [ 1]  878 	adc	a, #0x00
+      000436 90 97            [ 1]  879 	ld	yl, a
+      000438 7B 01            [ 1]  880 	ld	a, (0x01, sp)
+      00043A A9 00            [ 1]  881 	adc	a, #0x00
+      00043C 6B 01            [ 1]  882 	ld	(0x01, sp), a
+      00043E 90 9F            [ 1]  883 	ld	a, yl
+      000440 20 DF            [ 2]  884 	jra	00110$
+                                    885 ;	../../stm8/se8r01.c: 226: delay_us(30);
+      000442                        886 00102$:
+                                    887 ;	../../stm8/se8r01.c: 227: CE_L();
+      000442 AE 50 0A         [ 2]  888 	ldw	x, #0x500a
+      000445 F6               [ 1]  889 	ld	a, (x)
+      000446 A4 F7            [ 1]  890 	and	a, #0xf7
+      000448 F7               [ 1]  891 	ld	(x), a
+                                    892 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000449 5F               [ 1]  893 	clrw	x
+      00044A 1F 03            [ 2]  894 	ldw	(0x03, sp), x
+      00044C 1F 01            [ 2]  895 	ldw	(0x01, sp), x
+      00044E                        896 00113$:
+      00044E 1E 03            [ 2]  897 	ldw	x, (0x03, sp)
+      000450 A3 00 00         [ 2]  898 	cpw	x, #0x0000
+      000453 7B 02            [ 1]  899 	ld	a, (0x02, sp)
+      000455 A2 00            [ 1]  900 	sbc	a, #0x00
+      000457 7B 01            [ 1]  901 	ld	a, (0x01, sp)
+      000459 A2 00            [ 1]  902 	sbc	a, #0x00
+      00045B 24 17            [ 1]  903 	jrnc	00104$
+                                    904 ;	../../stm8/delay.h: 19: __asm__("nop");
+      00045D 9D               [ 1]  905 	nop
+                                    906 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      00045E 16 03            [ 2]  907 	ldw	y, (0x03, sp)
+      000460 72 A9 00 01      [ 2]  908 	addw	y, #0x0001
+      000464 7B 02            [ 1]  909 	ld	a, (0x02, sp)
+      000466 A9 00            [ 1]  910 	adc	a, #0x00
+      000468 97               [ 1]  911 	ld	xl, a
+      000469 7B 01            [ 1]  912 	ld	a, (0x01, sp)
+      00046B A9 00            [ 1]  913 	adc	a, #0x00
+      00046D 95               [ 1]  914 	ld	xh, a
+      00046E 17 03            [ 2]  915 	ldw	(0x03, sp), y
+      000470 1F 01            [ 2]  916 	ldw	(0x01, sp), x
+      000472 20 DA            [ 2]  917 	jra	00113$
+                                    918 ;	../../stm8/se8r01.c: 229: delay_us(50);                            // delay 50ms waiting for calibaration.
+      000474                        919 00104$:
+                                    920 ;	../../stm8/se8r01.c: 231: CE_H();
+      000474 AE 50 0A         [ 2]  921 	ldw	x, #0x500a
+      000477 F6               [ 1]  922 	ld	a, (x)
+      000478 AA 08            [ 1]  923 	or	a, #0x08
+      00047A F7               [ 1]  924 	ld	(x), a
+                                    925 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      00047B 5F               [ 1]  926 	clrw	x
+      00047C 1F 03            [ 2]  927 	ldw	(0x03, sp), x
+      00047E 1F 01            [ 2]  928 	ldw	(0x01, sp), x
+      000480                        929 00116$:
+      000480 1E 03            [ 2]  930 	ldw	x, (0x03, sp)
+      000482 A3 00 00         [ 2]  931 	cpw	x, #0x0000
+      000485 7B 02            [ 1]  932 	ld	a, (0x02, sp)
+      000487 A2 00            [ 1]  933 	sbc	a, #0x00
+      000489 7B 01            [ 1]  934 	ld	a, (0x01, sp)
+      00048B A2 00            [ 1]  935 	sbc	a, #0x00
+      00048D 24 17            [ 1]  936 	jrnc	00106$
+                                    937 ;	../../stm8/delay.h: 19: __asm__("nop");
+      00048F 9D               [ 1]  938 	nop
+                                    939 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      000490 16 03            [ 2]  940 	ldw	y, (0x03, sp)
+      000492 72 A9 00 01      [ 2]  941 	addw	y, #0x0001
+      000496 7B 02            [ 1]  942 	ld	a, (0x02, sp)
+      000498 A9 00            [ 1]  943 	adc	a, #0x00
+      00049A 97               [ 1]  944 	ld	xl, a
+      00049B 7B 01            [ 1]  945 	ld	a, (0x01, sp)
+      00049D A9 00            [ 1]  946 	adc	a, #0x00
+      00049F 95               [ 1]  947 	ld	xh, a
+      0004A0 17 03            [ 2]  948 	ldw	(0x03, sp), y
+      0004A2 1F 01            [ 2]  949 	ldw	(0x01, sp), x
+      0004A4 20 DA            [ 2]  950 	jra	00116$
+                                    951 ;	../../stm8/se8r01.c: 232: delay_us(30);
+      0004A6                        952 00106$:
+                                    953 ;	../../stm8/se8r01.c: 233: CE_L();
+      0004A6 AE 50 0A         [ 2]  954 	ldw	x, #0x500a
+      0004A9 F6               [ 1]  955 	ld	a, (x)
+      0004AA A4 F7            [ 1]  956 	and	a, #0xf7
+      0004AC F7               [ 1]  957 	ld	(x), a
+                                    958 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      0004AD 90 5F            [ 1]  959 	clrw	y
+      0004AF 5F               [ 1]  960 	clrw	x
+      0004B0                        961 00119$:
+      0004B0 90 A3 00 00      [ 2]  962 	cpw	y, #0x0000
+      0004B4 9F               [ 1]  963 	ld	a, xl
+      0004B5 A2 00            [ 1]  964 	sbc	a, #0x00
+      0004B7 9E               [ 1]  965 	ld	a, xh
+      0004B8 A2 00            [ 1]  966 	sbc	a, #0x00
+      0004BA 24 08            [ 1]  967 	jrnc	00121$
+                                    968 ;	../../stm8/delay.h: 19: __asm__("nop");
+      0004BC 9D               [ 1]  969 	nop
+                                    970 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      0004BD 90 5C            [ 1]  971 	incw	y
+      0004BF 26 EF            [ 1]  972 	jrne	00119$
+      0004C1 5C               [ 1]  973 	incw	x
+      0004C2 20 EC            [ 2]  974 	jra	00119$
+                                    975 ;	../../stm8/se8r01.c: 235: delay_us(50);                            // delay 50ms waiting for calibaration.
+      0004C4                        976 00121$:
+      0004C4 5B 11            [ 2]  977 	addw	sp, #17
+      0004C6 81               [ 4]  978 	ret
+                                    979 ;	../../stm8/se8r01.c: 240: void se8r01_setup()
+                                    980 ;	-----------------------------------------
+                                    981 ;	 function se8r01_setup
+                                    982 ;	-----------------------------------------
+      0004C7                        983 _se8r01_setup:
+      0004C7 52 0F            [ 2]  984 	sub	sp, #15
+                                    985 ;	../../stm8/se8r01.c: 244: gtemp[0]=0x28;
+      0004C9 96               [ 1]  986 	ldw	x, sp
+      0004CA 5C               [ 1]  987 	incw	x
+      0004CB 1F 0E            [ 2]  988 	ldw	(0x0e, sp), x
+      0004CD A6 28            [ 1]  989 	ld	a, #0x28
+      0004CF F7               [ 1]  990 	ld	(x), a
+                                    991 ;	../../stm8/se8r01.c: 245: gtemp[1]=0x32;
+      0004D0 1E 0E            [ 2]  992 	ldw	x, (0x0e, sp)
+      0004D2 5C               [ 1]  993 	incw	x
+      0004D3 1F 0C            [ 2]  994 	ldw	(0x0c, sp), x
+      0004D5 A6 32            [ 1]  995 	ld	a, #0x32
+      0004D7 F7               [ 1]  996 	ld	(x), a
+                                    997 ;	../../stm8/se8r01.c: 246: gtemp[2]=0x80;
+      0004D8 1E 0E            [ 2]  998 	ldw	x, (0x0e, sp)
+      0004DA 5C               [ 1]  999 	incw	x
+      0004DB 5C               [ 1] 1000 	incw	x
+      0004DC 1F 0A            [ 2] 1001 	ldw	(0x0a, sp), x
+      0004DE A6 80            [ 1] 1002 	ld	a, #0x80
+      0004E0 F7               [ 1] 1003 	ld	(x), a
+                                   1004 ;	../../stm8/se8r01.c: 247: gtemp[3]=0x90;
+      0004E1 1E 0E            [ 2] 1005 	ldw	x, (0x0e, sp)
+      0004E3 1C 00 03         [ 2] 1006 	addw	x, #0x0003
+      0004E6 1F 08            [ 2] 1007 	ldw	(0x08, sp), x
+      0004E8 A6 90            [ 1] 1008 	ld	a, #0x90
+      0004EA F7               [ 1] 1009 	ld	(x), a
+                                   1010 ;	../../stm8/se8r01.c: 248: gtemp[4]=0x00;
+      0004EB 1E 0E            [ 2] 1011 	ldw	x, (0x0e, sp)
+      0004ED 1C 00 04         [ 2] 1012 	addw	x, #0x0004
+      0004F0 1F 06            [ 2] 1013 	ldw	(0x06, sp), x
+      0004F2 7F               [ 1] 1014 	clr	(x)
+                                   1015 ;	../../stm8/se8r01.c: 249: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK0_SETUP_VALUE, gtemp, 5);
+      0004F3 1E 0E            [ 2] 1016 	ldw	x, (0x0e, sp)
+      0004F5 4B 05            [ 1] 1017 	push	#0x05
+      0004F7 89               [ 2] 1018 	pushw	x
+      0004F8 4B 3E            [ 1] 1019 	push	#0x3e
+      0004FA CDr00r8E         [ 4] 1020 	call	_SPI_write_buf
+      0004FD 5B 04            [ 2] 1021 	addw	sp, #4
+                                   1022 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      0004FF 90 5F            [ 1] 1023 	clrw	y
+      000501 5F               [ 1] 1024 	clrw	x
+      000502                       1025 00104$:
+      000502 90 A3 00 00      [ 2] 1026 	cpw	y, #0x0000
+      000506 9F               [ 1] 1027 	ld	a, xl
+      000507 A2 00            [ 1] 1028 	sbc	a, #0x00
+      000509 9E               [ 1] 1029 	ld	a, xh
+      00050A A2 00            [ 1] 1030 	sbc	a, #0x00
+      00050C 24 08            [ 1] 1031 	jrnc	00102$
+                                   1032 ;	../../stm8/delay.h: 19: __asm__("nop");
+      00050E 9D               [ 1] 1033 	nop
+                                   1034 ;	../../stm8/delay.h: 18: for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+      00050F 90 5C            [ 1] 1035 	incw	y
+      000511 26 EF            [ 1] 1036 	jrne	00104$
+      000513 5C               [ 1] 1037 	incw	x
+      000514 20 EC            [ 2] 1038 	jra	00104$
+                                   1039 ;	../../stm8/se8r01.c: 251: delay_us(2);
+      000516                       1040 00102$:
+                                   1041 ;	../../stm8/se8r01.c: 253: rf_switch_bank(iBANK1);
+      000516 4B 80            [ 1] 1042 	push	#0x80
+      000518 CDr02rD5         [ 4] 1043 	call	_rf_switch_bank
+      00051B 84               [ 1] 1044 	pop	a
+                                   1045 ;	../../stm8/se8r01.c: 255: gtemp[0]=0x40;
+      00051C 1E 0E            [ 2] 1046 	ldw	x, (0x0e, sp)
+      00051E A6 40            [ 1] 1047 	ld	a, #0x40
+      000520 F7               [ 1] 1048 	ld	(x), a
+                                   1049 ;	../../stm8/se8r01.c: 256: gtemp[1]=0x01;
+      000521 1E 0C            [ 2] 1050 	ldw	x, (0x0c, sp)
+      000523 A6 01            [ 1] 1051 	ld	a, #0x01
+      000525 F7               [ 1] 1052 	ld	(x), a
+                                   1053 ;	../../stm8/se8r01.c: 257: gtemp[2]=0x30;
+      000526 1E 0A            [ 2] 1054 	ldw	x, (0x0a, sp)
+      000528 A6 30            [ 1] 1055 	ld	a, #0x30
+      00052A F7               [ 1] 1056 	ld	(x), a
+                                   1057 ;	../../stm8/se8r01.c: 258: gtemp[3]=0xE2;
+      00052B 1E 08            [ 2] 1058 	ldw	x, (0x08, sp)
+      00052D A6 E2            [ 1] 1059 	ld	a, #0xe2
+      00052F F7               [ 1] 1060 	ld	(x), a
+                                   1061 ;	../../stm8/se8r01.c: 259: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_PLL_CTL0, gtemp, 4);
+      000530 1E 0E            [ 2] 1062 	ldw	x, (0x0e, sp)
+      000532 4B 04            [ 1] 1063 	push	#0x04
+      000534 89               [ 2] 1064 	pushw	x
+      000535 4B 21            [ 1] 1065 	push	#0x21
+      000537 CDr00r8E         [ 4] 1066 	call	_SPI_write_buf
+      00053A 5B 04            [ 2] 1067 	addw	sp, #4
+                                   1068 ;	../../stm8/se8r01.c: 261: gtemp[0]=0x29;
+      00053C 1E 0E            [ 2] 1069 	ldw	x, (0x0e, sp)
+      00053E A6 29            [ 1] 1070 	ld	a, #0x29
+      000540 F7               [ 1] 1071 	ld	(x), a
+                                   1072 ;	../../stm8/se8r01.c: 262: gtemp[1]=0x89;
+      000541 1E 0C            [ 2] 1073 	ldw	x, (0x0c, sp)
+      000543 A6 89            [ 1] 1074 	ld	a, #0x89
+      000545 F7               [ 1] 1075 	ld	(x), a
+                                   1076 ;	../../stm8/se8r01.c: 263: gtemp[2]=0x55;
+      000546 1E 0A            [ 2] 1077 	ldw	x, (0x0a, sp)
+      000548 A6 55            [ 1] 1078 	ld	a, #0x55
+      00054A F7               [ 1] 1079 	ld	(x), a
+                                   1080 ;	../../stm8/se8r01.c: 264: gtemp[3]=0x40;
+      00054B 1E 08            [ 2] 1081 	ldw	x, (0x08, sp)
+      00054D A6 40            [ 1] 1082 	ld	a, #0x40
+      00054F F7               [ 1] 1083 	ld	(x), a
+                                   1084 ;	../../stm8/se8r01.c: 265: gtemp[4]=0x50;
+      000550 1E 06            [ 2] 1085 	ldw	x, (0x06, sp)
+      000552 A6 50            [ 1] 1086 	ld	a, #0x50
+      000554 F7               [ 1] 1087 	ld	(x), a
+                                   1088 ;	../../stm8/se8r01.c: 266: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_CAL_CTL, gtemp, 5);
+      000555 1E 0E            [ 2] 1089 	ldw	x, (0x0e, sp)
+      000557 4B 05            [ 1] 1090 	push	#0x05
+      000559 89               [ 2] 1091 	pushw	x
+      00055A 4B 23            [ 1] 1092 	push	#0x23
+      00055C CDr00r8E         [ 4] 1093 	call	_SPI_write_buf
+      00055F 5B 04            [ 2] 1094 	addw	sp, #4
+                                   1095 ;	../../stm8/se8r01.c: 268: gtemp[0]=0x29;
+      000561 1E 0E            [ 2] 1096 	ldw	x, (0x0e, sp)
+      000563 A6 29            [ 1] 1097 	ld	a, #0x29
+      000565 F7               [ 1] 1098 	ld	(x), a
+                                   1099 ;	../../stm8/se8r01.c: 269: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_FDEV, gtemp, 1);
+      000566 1E 0E            [ 2] 1100 	ldw	x, (0x0e, sp)
+      000568 4B 01            [ 1] 1101 	push	#0x01
+      00056A 89               [ 2] 1102 	pushw	x
+      00056B 4B 2C            [ 1] 1103 	push	#0x2c
+      00056D CDr00r8E         [ 4] 1104 	call	_SPI_write_buf
+      000570 5B 04            [ 2] 1105 	addw	sp, #4
+                                   1106 ;	../../stm8/se8r01.c: 271: gtemp[0]=0x55;
+      000572 1E 0E            [ 2] 1107 	ldw	x, (0x0e, sp)
+      000574 A6 55            [ 1] 1108 	ld	a, #0x55
+      000576 F7               [ 1] 1109 	ld	(x), a
+                                   1110 ;	../../stm8/se8r01.c: 272: gtemp[1]=0xC2;
+      000577 1E 0C            [ 2] 1111 	ldw	x, (0x0c, sp)
+      000579 A6 C2            [ 1] 1112 	ld	a, #0xc2
+      00057B F7               [ 1] 1113 	ld	(x), a
+                                   1114 ;	../../stm8/se8r01.c: 273: gtemp[2]=0x09;
+      00057C 1E 0A            [ 2] 1115 	ldw	x, (0x0a, sp)
+      00057E A6 09            [ 1] 1116 	ld	a, #0x09
+      000580 F7               [ 1] 1117 	ld	(x), a
+                                   1118 ;	../../stm8/se8r01.c: 274: gtemp[3]=0xAC;
+      000581 1E 08            [ 2] 1119 	ldw	x, (0x08, sp)
+      000583 A6 AC            [ 1] 1120 	ld	a, #0xac
+      000585 F7               [ 1] 1121 	ld	(x), a
+                                   1122 ;	../../stm8/se8r01.c: 275: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_RX_CTRL, gtemp, 4);
+      000586 1E 0E            [ 2] 1123 	ldw	x, (0x0e, sp)
+      000588 4B 04            [ 1] 1124 	push	#0x04
+      00058A 89               [ 2] 1125 	pushw	x
+      00058B 4B 31            [ 1] 1126 	push	#0x31
+      00058D CDr00r8E         [ 4] 1127 	call	_SPI_write_buf
+      000590 5B 04            [ 2] 1128 	addw	sp, #4
+                                   1129 ;	../../stm8/se8r01.c: 277: gtemp[0]=0x00;
+      000592 1E 0E            [ 2] 1130 	ldw	x, (0x0e, sp)
+      000594 7F               [ 1] 1131 	clr	(x)
+                                   1132 ;	../../stm8/se8r01.c: 278: gtemp[1]=0x14;
+      000595 1E 0C            [ 2] 1133 	ldw	x, (0x0c, sp)
+      000597 A6 14            [ 1] 1134 	ld	a, #0x14
+      000599 F7               [ 1] 1135 	ld	(x), a
+                                   1136 ;	../../stm8/se8r01.c: 279: gtemp[2]=0x08;
+      00059A 1E 0A            [ 2] 1137 	ldw	x, (0x0a, sp)
+      00059C A6 08            [ 1] 1138 	ld	a, #0x08
+      00059E F7               [ 1] 1139 	ld	(x), a
+                                   1140 ;	../../stm8/se8r01.c: 280: gtemp[3]=0x29;
+      00059F 1E 08            [ 2] 1141 	ldw	x, (0x08, sp)
+      0005A1 A6 29            [ 1] 1142 	ld	a, #0x29
+      0005A3 F7               [ 1] 1143 	ld	(x), a
+                                   1144 ;	../../stm8/se8r01.c: 281: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_FAGC_CTRL_1, gtemp, 4);
+      0005A4 1E 0E            [ 2] 1145 	ldw	x, (0x0e, sp)
+      0005A6 4B 04            [ 1] 1146 	push	#0x04
+      0005A8 89               [ 2] 1147 	pushw	x
+      0005A9 4B 33            [ 1] 1148 	push	#0x33
+      0005AB CDr00r8E         [ 4] 1149 	call	_SPI_write_buf
+      0005AE 5B 04            [ 2] 1150 	addw	sp, #4
+                                   1151 ;	../../stm8/se8r01.c: 283: gtemp[0]=0x02;
+      0005B0 1E 0E            [ 2] 1152 	ldw	x, (0x0e, sp)
+      0005B2 A6 02            [ 1] 1153 	ld	a, #0x02
+      0005B4 F7               [ 1] 1154 	ld	(x), a
+                                   1155 ;	../../stm8/se8r01.c: 284: gtemp[1]=0xC1;
+      0005B5 1E 0C            [ 2] 1156 	ldw	x, (0x0c, sp)
+      0005B7 A6 C1            [ 1] 1157 	ld	a, #0xc1
+      0005B9 F7               [ 1] 1158 	ld	(x), a
+                                   1159 ;	../../stm8/se8r01.c: 285: gtemp[2]=0xCB;
+      0005BA 1E 0A            [ 2] 1160 	ldw	x, (0x0a, sp)
+      0005BC A6 CB            [ 1] 1161 	ld	a, #0xcb
+      0005BE F7               [ 1] 1162 	ld	(x), a
+                                   1163 ;	../../stm8/se8r01.c: 286: gtemp[3]=0x1C;
+      0005BF 1E 08            [ 2] 1164 	ldw	x, (0x08, sp)
+      0005C1 A6 1C            [ 1] 1165 	ld	a, #0x1c
+      0005C3 F7               [ 1] 1166 	ld	(x), a
+                                   1167 ;	../../stm8/se8r01.c: 287: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_AGC_GAIN, gtemp, 4);
+      0005C4 1E 0E            [ 2] 1168 	ldw	x, (0x0e, sp)
+      0005C6 4B 04            [ 1] 1169 	push	#0x04
+      0005C8 89               [ 2] 1170 	pushw	x
+      0005C9 4B 3D            [ 1] 1171 	push	#0x3d
+      0005CB CDr00r8E         [ 4] 1172 	call	_SPI_write_buf
+      0005CE 5B 04            [ 2] 1173 	addw	sp, #4
+                                   1174 ;	../../stm8/se8r01.c: 289: gtemp[0]=0x97;
+      0005D0 1E 0E            [ 2] 1175 	ldw	x, (0x0e, sp)
+      0005D2 A6 97            [ 1] 1176 	ld	a, #0x97
+      0005D4 F7               [ 1] 1177 	ld	(x), a
+                                   1178 ;	../../stm8/se8r01.c: 290: gtemp[1]=0x64;
+      0005D5 1E 0C            [ 2] 1179 	ldw	x, (0x0c, sp)
+      0005D7 A6 64            [ 1] 1180 	ld	a, #0x64
+      0005D9 F7               [ 1] 1181 	ld	(x), a
+                                   1182 ;	../../stm8/se8r01.c: 291: gtemp[2]=0x00;
+      0005DA 1E 0A            [ 2] 1183 	ldw	x, (0x0a, sp)
+      0005DC 7F               [ 1] 1184 	clr	(x)
+                                   1185 ;	../../stm8/se8r01.c: 292: gtemp[3]=0x01;
+      0005DD 1E 08            [ 2] 1186 	ldw	x, (0x08, sp)
+      0005DF A6 01            [ 1] 1187 	ld	a, #0x01
+      0005E1 F7               [ 1] 1188 	ld	(x), a
+                                   1189 ;	../../stm8/se8r01.c: 293: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_RF_IVGEN, gtemp, 4);
+      0005E2 1E 0E            [ 2] 1190 	ldw	x, (0x0e, sp)
+      0005E4 4B 04            [ 1] 1191 	push	#0x04
+      0005E6 89               [ 2] 1192 	pushw	x
+      0005E7 4B 3E            [ 1] 1193 	push	#0x3e
+      0005E9 CDr00r8E         [ 4] 1194 	call	_SPI_write_buf
+      0005EC 5B 04            [ 2] 1195 	addw	sp, #4
+                                   1196 ;	../../stm8/se8r01.c: 295: gtemp[0]=0x2A;
+      0005EE 1E 0E            [ 2] 1197 	ldw	x, (0x0e, sp)
+      0005F0 A6 2A            [ 1] 1198 	ld	a, #0x2a
+      0005F2 F7               [ 1] 1199 	ld	(x), a
+                                   1200 ;	../../stm8/se8r01.c: 296: gtemp[1]=0x04;
+      0005F3 1E 0C            [ 2] 1201 	ldw	x, (0x0c, sp)
+      0005F5 A6 04            [ 1] 1202 	ld	a, #0x04
+      0005F7 F7               [ 1] 1203 	ld	(x), a
+                                   1204 ;	../../stm8/se8r01.c: 297: gtemp[2]=0x00;
+      0005F8 1E 0A            [ 2] 1205 	ldw	x, (0x0a, sp)
+      0005FA 7F               [ 1] 1206 	clr	(x)
+                                   1207 ;	../../stm8/se8r01.c: 298: gtemp[3]=0x7D;
+      0005FB 1E 08            [ 2] 1208 	ldw	x, (0x08, sp)
+      0005FD A6 7D            [ 1] 1209 	ld	a, #0x7d
+      0005FF F7               [ 1] 1210 	ld	(x), a
+                                   1211 ;	../../stm8/se8r01.c: 299: SPI_write_buf(iRF_CMD_WRITE_REG|iRF_BANK1_TEST_PKDET, gtemp, 4);
+      000600 1E 0E            [ 2] 1212 	ldw	x, (0x0e, sp)
+      000602 4B 04            [ 1] 1213 	push	#0x04
+      000604 89               [ 2] 1214 	pushw	x
+      000605 4B 3F            [ 1] 1215 	push	#0x3f
+      000607 CDr00r8E         [ 4] 1216 	call	_SPI_write_buf
+      00060A 5B 04            [ 2] 1217 	addw	sp, #4
+                                   1218 ;	../../stm8/se8r01.c: 301: rf_switch_bank(iBANK0);
+      00060C 4B 00            [ 1] 1219 	push	#0x00
+      00060E CDr02rD5         [ 4] 1220 	call	_rf_switch_bank
+      000611 5B 10            [ 2] 1221 	addw	sp, #16
+      000613 81               [ 4] 1222 	ret
+                                   1223 ;	../../stm8/se8r01.c: 305: void se8r01_settings() {
+                                   1224 ;	-----------------------------------------
+                                   1225 ;	 function se8r01_settings
+                                   1226 ;	-----------------------------------------
+      000614                       1227 _se8r01_settings:
+      000614 52 06            [ 2] 1228 	sub	sp, #6
+                                   1229 ;	../../stm8/se8r01.c: 306: uint8_t TX_ADDRESS[TX_ADR_WIDTH]  = 
+      000616 96               [ 1] 1230 	ldw	x, sp
+      000617 5C               [ 1] 1231 	incw	x
+      000618 1F 05            [ 2] 1232 	ldw	(0x05, sp), x
+      00061A A6 34            [ 1] 1233 	ld	a, #0x34
+      00061C F7               [ 1] 1234 	ld	(x), a
+      00061D 1E 05            [ 2] 1235 	ldw	x, (0x05, sp)
+      00061F 5C               [ 1] 1236 	incw	x
+      000620 A6 43            [ 1] 1237 	ld	a, #0x43
+      000622 F7               [ 1] 1238 	ld	(x), a
+      000623 1E 05            [ 2] 1239 	ldw	x, (0x05, sp)
+      000625 5C               [ 1] 1240 	incw	x
+      000626 5C               [ 1] 1241 	incw	x
+      000627 A6 10            [ 1] 1242 	ld	a, #0x10
+      000629 F7               [ 1] 1243 	ld	(x), a
+      00062A 1E 05            [ 2] 1244 	ldw	x, (0x05, sp)
+      00062C A6 10            [ 1] 1245 	ld	a, #0x10
+      00062E E7 03            [ 1] 1246 	ld	(0x0003, x), a
+                                   1247 ;	../../stm8/se8r01.c: 311: SPI_write_read_reg(WRITE_REG|iRF_BANK0_EN_AA, 0x01);          //enable auto acc on pip 1
+      000630 4B 01            [ 1] 1248 	push	#0x01
+      000632 4B 21            [ 1] 1249 	push	#0x21
+      000634 CDr00r69         [ 4] 1250 	call	_SPI_write_read_reg
+      000637 5B 02            [ 2] 1251 	addw	sp, #2
+                                   1252 ;	../../stm8/se8r01.c: 312: SPI_write_read_reg(WRITE_REG|iRF_BANK0_EN_RXADDR, 0x01);      //enable pip 1
+      000639 4B 01            [ 1] 1253 	push	#0x01
+      00063B 4B 22            [ 1] 1254 	push	#0x22
+      00063D CDr00r69         [ 4] 1255 	call	_SPI_write_read_reg
+      000640 5B 02            [ 2] 1256 	addw	sp, #2
+                                   1257 ;	../../stm8/se8r01.c: 313: SPI_write_read_reg(WRITE_REG|iRF_BANK0_SETUP_AW, 0x02);        //4 byte adress
+      000642 4B 02            [ 1] 1258 	push	#0x02
+      000644 4B 23            [ 1] 1259 	push	#0x23
+      000646 CDr00r69         [ 4] 1260 	call	_SPI_write_read_reg
+      000649 5B 02            [ 2] 1261 	addw	sp, #2
+                                   1262 ;	../../stm8/se8r01.c: 315: SPI_write_read_reg(WRITE_REG|iRF_BANK0_SETUP_RETR, 0x0a);        //lowest 4 bits 0-15 rt transmisston higest 4 bits 256-4096us Auto Retransmit Delay
+      00064B 4B 0A            [ 1] 1263 	push	#0x0a
+      00064D 4B 24            [ 1] 1264 	push	#0x24
+      00064F CDr00r69         [ 4] 1265 	call	_SPI_write_read_reg
+      000652 5B 02            [ 2] 1266 	addw	sp, #2
+                                   1267 ;	../../stm8/se8r01.c: 316: SPI_write_read_reg(WRITE_REG|iRF_BANK0_RF_CH, 40);
+      000654 4B 28            [ 1] 1268 	push	#0x28
+      000656 4B 25            [ 1] 1269 	push	#0x25
+      000658 CDr00r69         [ 4] 1270 	call	_SPI_write_read_reg
+      00065B 5B 02            [ 2] 1271 	addw	sp, #2
+                                   1272 ;	../../stm8/se8r01.c: 317: SPI_write_read_reg(WRITE_REG|iRF_BANK0_RF_SETUP, 0x5f);        //500kps 0x4f
+      00065D 4B 5F            [ 1] 1273 	push	#0x5f
+      00065F 4B 26            [ 1] 1274 	push	#0x26
+      000661 CDr00r69         [ 4] 1275 	call	_SPI_write_read_reg
+      000664 5B 02            [ 2] 1276 	addw	sp, #2
+                                   1277 ;	../../stm8/se8r01.c: 321: SPI_write_buf(WRITE_REG + TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);  //from tx
+      000666 1E 05            [ 2] 1278 	ldw	x, (0x05, sp)
+      000668 4B 04            [ 1] 1279 	push	#0x04
+      00066A 89               [ 2] 1280 	pushw	x
+      00066B 4B 30            [ 1] 1281 	push	#0x30
+      00066D CDr00r8E         [ 4] 1282 	call	_SPI_write_buf
+      000670 5B 04            [ 2] 1283 	addw	sp, #4
+                                   1284 ;	../../stm8/se8r01.c: 322: SPI_write_buf(WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH); // Use the same address on the RX device as the TX device
+      000672 1E 05            [ 2] 1285 	ldw	x, (0x05, sp)
+      000674 4B 04            [ 1] 1286 	push	#0x04
+      000676 89               [ 2] 1287 	pushw	x
+      000677 4B 2A            [ 1] 1288 	push	#0x2a
+      000679 CDr00r8E         [ 4] 1289 	call	_SPI_write_buf
+      00067C 5B 04            [ 2] 1290 	addw	sp, #4
+                                   1291 ;	../../stm8/se8r01.c: 323: SPI_write_read_reg(WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH); // Select same RX payload width as TX Payload width
+      00067E 4B 06            [ 1] 1292 	push	#0x06
+      000680 4B 31            [ 1] 1293 	push	#0x31
+      000682 CDr00r69         [ 4] 1294 	call	_SPI_write_read_reg
+      000685 5B 08            [ 2] 1295 	addw	sp, #8
+      000687 81               [ 4] 1296 	ret
+                                   1297 ;	../../stm8/se8r01.c: 327: void se8r01_flush_TX() {
+                                   1298 ;	-----------------------------------------
+                                   1299 ;	 function se8r01_flush_TX
+                                   1300 ;	-----------------------------------------
+      000688                       1301 _se8r01_flush_TX:
+                                   1302 ;	../../stm8/se8r01.c: 328: SPI_write_read_reg(FLUSH_TX, 0xff);
+      000688 4B FF            [ 1] 1303 	push	#0xff
+      00068A 4B E1            [ 1] 1304 	push	#0xe1
+      00068C CDr00r69         [ 4] 1305 	call	_SPI_write_read_reg
+      00068F 5B 02            [ 2] 1306 	addw	sp, #2
+      000691 81               [ 4] 1307 	ret
+                                   1308 ;	../../stm8/se8r01.c: 331: void se8r01_flush_RX() {
+                                   1309 ;	-----------------------------------------
+                                   1310 ;	 function se8r01_flush_RX
+                                   1311 ;	-----------------------------------------
+      000692                       1312 _se8r01_flush_RX:
+                                   1313 ;	../../stm8/se8r01.c: 332: SPI_write_read_reg(FLUSH_RX, 0xff);
+      000692 4B FF            [ 1] 1314 	push	#0xff
+      000694 4B E2            [ 1] 1315 	push	#0xe2
+      000696 CDr00r69         [ 4] 1316 	call	_SPI_write_read_reg
+      000699 5B 02            [ 2] 1317 	addw	sp, #2
+      00069B 81               [ 4] 1318 	ret
+                                   1319 	.area CODE
+      00069C                       1320 ___str_0:
+      00069C 49 6E 69 74 69 61 6C  1321 	.ascii "Initializing SPI"
+             69 7A 69 6E 67 20 53
+             50 49
+      0006AC 0A                    1322 	.db 0x0a
+      0006AD 00                    1323 	.db 0x00
+      0006AE                       1324 ___str_1:
+      0006AE 53 74 61 74 75 73 3A  1325 	.ascii "Status: %02x "
+             20 25 30 32 78 20
+      0006BB 0A                    1326 	.db 0x0a
+      0006BC 00                    1327 	.db 0x00
+      0006BD                       1328 ___str_2:
+      0006BD 52 58 20 6D 6F 64 65  1329 	.ascii "RX mode"
+      0006C4 0A                    1330 	.db 0x0a
+      0006C5 00                    1331 	.db 0x00
+      0006C6                       1332 ___str_3:
+      0006C6 54 58 20 6D 6F 64 65  1333 	.ascii "TX mode, status %02x"
+             2C 20 73 74 61 74 75
+             73 20 25 30 32 78
+      0006DA 0A                    1334 	.db 0x0a
+      0006DB 00                    1335 	.db 0x00
+      0006DC                       1336 ___str_4:
+      0006DC 63 6F 6E 6E 65 63 74  1337 	.ascii "connected? %02x"
+             65 64 3F 20 25 30 32
+             78
+      0006EB 0A                    1338 	.db 0x0a
+      0006EC 00                    1339 	.db 0x00
+      0006ED                       1340 ___str_5:
+      0006ED 63 6C 65 61 72 69 6E  1341 	.ascii "clearing irq flag"
+             67 20 69 72 71 20 66
+             6C 61 67
+      0006FE 0A                    1342 	.db 0x0a
+      0006FF 00                    1343 	.db 0x00
+      000700                       1344 ___str_6:
+      000700 54 65 6D 70 20 30 3A  1345 	.ascii "Temp 0: %02x "
+             20 25 30 32 78 20
+      00070D 0A                    1346 	.db 0x0a
+      00070E 00                    1347 	.db 0x00
+                                   1348 	.area INITIALIZER
+                                   1349 	.area CABS (ABS)

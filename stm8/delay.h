@@ -14,4 +14,10 @@ static inline void delay_ms(uint32_t ms) {
     }
 }
 
+static inline void delay_us(uint32_t us) {
+    for (uint32_t i = 0; i < ((F_CPU / 18 / 1000000UL) * us); i++) {
+        __asm__("nop");
+    }
+}
+
 #endif /* DELAY_H */
